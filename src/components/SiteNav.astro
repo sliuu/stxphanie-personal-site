@@ -1,0 +1,75 @@
+---
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+type Action = 'resume' | 'linkedin' | 'github' | 'feedback' | 'mail';
+
+interface Props {
+  actions?: Action[];
+}
+
+// Monochrome; mail is the only accent element, so it sits last.
+const { actions = ['resume', 'linkedin', 'github', 'mail'] } = Astro.props;
+---
+
+<header class="nav">
+  <a class="wordmark" href="/">{site.name}</a>
+  <nav aria-label="Elsewhere">
+    <ul class="actions">
+      {
+        actions.map((action) => (
+          <li>
+            {action === 'resume' && (
+              <Button variant="ghost" href={site.resumeHref}>
+                Resume
+              </Button>
+            )}
+            {action === 'linkedin' && (
+              <Button variant="icon" tone="muted" href={site.linkedinHref} label="LinkedIn">
+                <Icon name="linkedin" />
+              </Button>
+            )}
+            {action === 'github' && (
+              <Button variant="icon" tone="muted" href={site.githubHref} label="GitHub">
+                <Icon name="github" />
+              </Button>
+            )}
+            {action === 'feedback' && (
+              <Button variant="icon" tone="muted" feedback label="Leave anonymous feedback">
+                <Icon name="feedback" />
+              </Button>
+            )}
+            {action === 'mail' && (
+              <Button variant="icon" tone="accent" href={`mailto:${site.email}`} label={`Email ${site.email}`}>
+                <Icon name="mail" />
+              </Button>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .nav {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-6);
+    padding: var(--pad-nav-top) var(--pad-page-x) 0;
+  }
+  .wordmark {
+    font: var(--t-mono-nav);
+    letter-spacing: var(--track-eyebrow);
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+  }
+</style>

@@ -1,0 +1,254 @@
+---
+// One row open at a time within a group; the first row starts open. Drives
+// both the case-study list and the single-row project section, so the two
+// read as one pattern. Separate <Accordion> instances are separate groups —
+// opening the project row does not close a case study.
+import Eyebrow from './Eyebrow.astro';
+import Figure from './Figure.astro';
+import TextLink from './TextLink.astro';
+import { resolveAsset, showPending } from '../lib/assets';
+
+interface Item {
+  index: string;
+  title: string;
+  emphasis?: string; // the part of the title set in --accent
+  org: string;
+  year: string;
+  summary: string;
+  href: string;
+  linkLabel?: string; // defaults to the case-study wording
+  external?: boolean; // ↗ instead of →
+  note?: string; // small eyebrow beside the link
+  thumb: string;
+  thumbAlt: string;
+}
+
+interface Props {
+  items: Item[];
+  idPrefix: string; // panel ids; must be unique per accordion on the page
+}
+
+const { items, idPrefix } = Astro.props;
+---
+
+<div class="accordion" data-accordion>
+  {
+    items.map((item, i) => {
+      const open = i === 0;
+      const panelId = `${idPrefix}-${item.index}`;
+      // The accent word is optional; without it the title is one plain run.
+      const [before, after = ''] = item.emphasis ? item.title.split(item.emphasis) : [item.title];
+      // A pending thumbnail is dropped from production builds; the copy then
+      // takes the full width rather than sitting beside a gap.
+      const hasThumb = resolveAsset(item.thumb).status !== 'pending' || showPending;
+      return (
+        <div class:list={['item', { 'is-open': open }]} data-item>
+          <h3 class="heading">
+            <button class="trigger" type="button" aria-expanded={open ? 'true' : 'false'} aria-controls={panelId}>
+              <span class="index">{item.index}</span>
+              <span class="title">
+                {before}
+                {item.emphasis && <span class="em">{item.emphasis}</span>}
+                {after}
+              </span>
+              <span class="org">
+                {item.org} · {item.year}
+              </span>
+              <span class="plus" aria-hidden="true">
+                +
+              </span>
+            </button>
+          </h3>
+          <div class="panel" id={panelId} inert={!open}>
+            <div class="clip">
+              <div class:list={['body', { solo: !hasThumb }]}>
+                <div class="copy">
+                  <p class="summary">{item.summary}</p>
+                  <div class="links">
+                    <TextLink href={item.href} mono external={item.external}>
+                      {item.linkLabel ?? 'read the case study'}
+                    </TextLink>
+                    {item.note && (
+                      <Eyebrow as="span" size="label" tone="muted">
+                        {item.note}
+                      </Eyebrow>
+                    )}
+                  </div>
+                </div>
+                {hasThumb && (
+                  <Figure
+                    src={item.thumb}
+                    alt={item.thumbAlt}
+                    width="fill"
+                    height="var(--thumb-height)"
+                    position="top left"
+                    radius="sm"
+                    sizes="(min-width: 900px) 45vw, 100vw"
+                    loading={open ? 'eager' : 'lazy'}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    })
+  }
+</div>
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>('[data-accordion]')) {
+    const items = [...root.querySelectorAll<HTMLElement>('[data-item]')];
+    const set = (item: HTMLElement, open: boolean) => {
+      item.classList.toggle('is-open', open);
+      item.querySelector('button')?.setAttribute('aria-expanded', String(open));
+      const panel = item.querySelector<HTMLElement>('[id]');
+      if (panel) panel.inert = !open;
+    };
+    for (const item of items) {
+      item.querySelector('button')?.addEventListener('click', () => {
+        const opening = !item.classList.contains('is-open');
+        for (const other of items) set(other, other === item && opening);
+      });
+    }
+  }
+</script>
+
+<style>
+  .accordion {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--rule);
+  }
+  .item {
+    border-bottom: 1px solid var(--rule);
+  }
+  .heading {
+    font: inherit;
+  }
+
+  .trigger {
+    display: grid;
+    grid-template-columns: var(--pad-inset) minmax(0, 1fr) auto auto;
+    column-gap: var(--s-9);
+    align-items: baseline;
+    width: 100%;
+    margin-left: calc(-1 * var(--s-3));
+    padding: var(--s-9) var(--s-5);
+    border-radius: var(--r-sm);
+    text-align: left;
+    transition:
+      transform var(--d-shift) var(--ease-shift),
+      opacity var(--d-border);
+  }
+  .item:not(.is-open) .trigger:hover {
+    opacity: 0.86;
+  }
+  /* Touch fires hover on tap; the nudge is for real pointers only. */
+  @media (hover: hover) and (pointer: fine) {
+    .item:not(.is-open) .trigger:hover {
+      transform: translateX(var(--s-1));
+    }
+  }
+  .index {
+    font: var(--t-mono-small);
+    color: var(--ink-decorative);
+  }
+  .title {
+    font: var(--t-accordion);
+    letter-spacing: var(--track-accordion);
+    color: var(--ink);
+  }
+  .em {
+    color: var(--accent);
+  }
+  .org {
+    font: var(--t-mono-org);
+    letter-spacing: var(--track-org);
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .plus {
+    font: var(--t-plus);
+    color: var(--ink);
+    transition: transform var(--d-plus) var(--ease-shift);
+  }
+  .is-open .plus {
+    transform: rotate(45deg);
+  }
+
+  /* Height animates via grid rows: 0fr → 1fr, no measured max-height. */
+  .panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows var(--d-accordion) var(--ease-shift),
+      opacity var(--d-fade) var(--ease-out);
+  }
+  .is-open .panel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .clip {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-10);
+    align-items: start;
+    padding: 0 var(--s-1) var(--s-10) calc(var(--pad-inset) + var(--s-9));
+  }
+  /* No thumbnail: the copy runs to the reading measure instead of half-width. */
+  .body.solo {
+    grid-template-columns: minmax(0, var(--measure));
+  }
+  .copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-head);
+  }
+  .summary {
+    font: var(--t-lead);
+    color: var(--ink-body);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s-3) var(--s-6);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trigger,
+    .plus,
+    .panel {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .trigger {
+      grid-template-columns: var(--pad-inset) minmax(0, 1fr) auto;
+      column-gap: var(--s-3);
+      row-gap: var(--s-2);
+      padding: var(--s-6) var(--s-3);
+    }
+    .org {
+      grid-column: 2;
+      grid-row: 2;
+    }
+    .plus {
+      grid-column: 3;
+      grid-row: 1;
+    }
+    .body,
+    .body.solo {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-6);
+      padding: 0 0 var(--s-9);
+    }
+  }
+</style>

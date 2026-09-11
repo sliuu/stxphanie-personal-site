@@ -1,0 +1,155 @@
+---
+// The only way media enters the page. Resolves the path against src/assets,
+// optimizes images, and handles the pending-asset case.
+import { Image } from 'astro:assets';
+import { resolveAsset, showPending } from '../lib/assets';
+import { inline } from '../lib/text';
+
+interface Props {
+  src: string; // relative to src/
+  alt: string;
+  caption?: string;
+  ratio?: string; // e.g. "16/9"; sizes the placeholder while the file is pending
+  width?: 'measure' | 'inset' | 'fill'; // 660px column, 250px beside copy, or the parent's width
+  height?: string; // fixed media height, e.g. var(--thumb-height)
+  position?: string; // object-position when height crops
+  framed?: boolean;
+  radius?: 'sm' | 'lg';
+  sizes?: string;
+  loading?: 'lazy' | 'eager';
+}
+
+const {
+  src,
+  alt,
+  caption,
+  ratio,
+  width = 'measure',
+  height,
+  position,
+  framed = true,
+  radius = 'lg',
+  sizes,
+  loading = 'lazy',
+} = Astro.props;
+
+const asset = resolveAsset(src);
+const render = asset.status !== 'pending' || showPending;
+
+const widths = {
+  measure: [660, 1320],
+  inset: [250, 500, 750],
+  fill: [480, 800, 1200, 1600],
+}[width];
+const defaultSizes = {
+  measure: '(min-width: 900px) 660px, 100vw',
+  inset: '(min-width: 900px) 250px, 100vw',
+  fill: '(min-width: 900px) 50vw, 100vw',
+}[width];
+
+const vars = Object.entries({ '--ratio': ratio?.replace('/', ' / '), '--h': height, '--pos': position })
+  .filter(([, v]) => v)
+  .map(([k, v]) => `${k}: ${v}`)
+  .join('; ');
+---
+
+{
+  render && (
+    <figure class:list={['figure', width, radius, { framed }]} style={vars || undefined}>
+      {asset.status === 'image' && (
+        <Image
+          class="media"
+          src={asset.image}
+          alt={alt}
+          widths={widths}
+          sizes={sizes ?? defaultSizes}
+          quality={90}
+          loading={loading}
+        />
+      )}
+      {asset.status === 'video' && (
+        <video class="media video" src={asset.url} autoplay muted loop playsinline preload="metadata" aria-label={alt} />
+      )}
+      {asset.status === 'pending' && (
+        <div class="media pending" role="img" aria-label={alt}>
+          {alt} — drop the file at src/{src}
+        </div>
+      )}
+      {caption && <figcaption set:html={inline(caption)} />}
+    </figure>
+  )
+}
+
+<script>
+  // Autoplaying loops are motion; hand them back to the reader.
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    for (const video of document.querySelectorAll<HTMLVideoElement>('video[autoplay]')) {
+      video.removeAttribute('autoplay');
+      video.pause();
+      video.controls = true;
+    }
+  }
+</script>
+
+<style>
+  .figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-media);
+    width: 100%;
+    max-width: var(--measure);
+  }
+  .inset {
+    flex: none;
+    width: var(--rail-width);
+  }
+  .fill {
+    max-width: none;
+  }
+  @media (max-width: 899px) {
+    .inset {
+      width: 100%;
+    }
+  }
+
+  .figure :global(.media) {
+    display: block;
+    width: 100%;
+    height: var(--h, auto);
+    object-fit: cover;
+    object-position: var(--pos, center);
+    transition: border-color var(--d-border);
+  }
+  .lg :global(.media) {
+    border-radius: var(--r-media);
+  }
+  .sm :global(.media) {
+    border-radius: var(--r-sm);
+  }
+  .framed :global(.media) {
+    border: 1px solid var(--border);
+  }
+
+  .video {
+    aspect-ratio: var(--ratio, auto);
+    background: var(--paper-inset);
+  }
+
+  .pending {
+    aspect-ratio: var(--ratio, 16 / 9);
+    padding: var(--s-4);
+    font: var(--t-mono-note);
+    letter-spacing: var(--track-pending);
+    color: var(--ink-muted);
+    background: var(--paper-sunken);
+  }
+  .figure .pending {
+    border: 1px dashed var(--border-dashed);
+  }
+
+  figcaption {
+    font: var(--t-mono-caption);
+    color: var(--ink-faint);
+    text-wrap: pretty;
+  }
+</style>

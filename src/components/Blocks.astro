@@ -1,0 +1,133 @@
+---
+// Renders a section's typed content blocks. Groups recurse.
+import type { CollectionEntry } from 'astro:content';
+import Callout from './Callout.astro';
+import DashList from './DashList.astro';
+import DivisionOfLabor from './DivisionOfLabor.astro';
+import Eyebrow from './Eyebrow.astro';
+import Figure from './Figure.astro';
+import PullQuote from './PullQuote.astro';
+import { inline } from '../lib/text';
+
+type Block = CollectionEntry<'work'>['data']['sections'][number]['blocks'][number];
+
+interface Props {
+  blocks: Block[];
+}
+
+const { blocks } = Astro.props;
+const paragraphs = (text: string | string[]) => (Array.isArray(text) ? text : [text]);
+---
+
+{
+  blocks.map((block) => {
+    switch (block.type) {
+      case 'prose':
+        return (
+          <div class="prose">
+            {paragraphs(block.text).map((p) => (
+              <p set:html={inline(p)} />
+            ))}
+          </div>
+        );
+      case 'figure':
+        return <Figure src={block.src} alt={block.alt} caption={block.caption} ratio={block.ratio} />;
+      case 'inset':
+        return (
+          <div class="inset">
+            <Figure {...block.figure} width="inset" />
+            <p class="inset-text" set:html={inline(block.text)} />
+          </div>
+        );
+      case 'callout':
+        return (
+          <Callout label={block.label}>
+            <Fragment set:html={inline(block.text)} />
+          </Callout>
+        );
+      case 'quote':
+        return (
+          <PullQuote>
+            <Fragment set:html={inline(block.text)} />
+          </PullQuote>
+        );
+      case 'statement':
+        return <p class="statement" set:html={inline(block.text)} />;
+      case 'label':
+        return (
+          <Eyebrow as="h3" size="label">
+            {block.text}
+          </Eyebrow>
+        );
+      case 'list':
+        return <DashList items={block.items} variant={block.style} />;
+      case 'diagram':
+        return (
+          <DivisionOfLabor left={block.left} right={block.right} exchange={block.exchange} caption={block.caption} />
+        );
+      case 'group':
+        return (
+          <div class:list={['group', { ruled: block.rule }]}>
+            {block.label && (
+              <Eyebrow as="h3" size="label">
+                {block.label}
+              </Eyebrow>
+            )}
+            <Astro.self blocks={block.blocks} />
+          </div>
+        );
+    }
+  })
+}
+
+<style>
+  .prose {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-6);
+    font: var(--t-body);
+    color: var(--ink-body);
+  }
+
+  .inset {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--s-11);
+  }
+  .inset-text {
+    flex: 1;
+    min-width: 0;
+    font: var(--t-body);
+    color: var(--ink-body);
+  }
+
+  .statement {
+    font: var(--t-lede);
+    letter-spacing: var(--track-lede);
+    color: var(--ink);
+  }
+
+  /* A sub-section inside a section: tighter rhythm, optional soft rule. */
+  .group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-5);
+    padding-top: var(--s-5);
+  }
+  .group.ruled {
+    padding-top: var(--s-8);
+    border-top: 1px solid var(--rule-soft);
+  }
+  /* Copy that follows media inside a group gets back the block rhythm. */
+  .group > :global(figure) + .prose,
+  .group > :global(.inset) + .prose {
+    padding-top: calc(var(--gap-block) - var(--gap-media));
+  }
+
+  @media (max-width: 899px) {
+    .inset {
+      flex-direction: column;
+      gap: var(--s-5);
+    }
+  }
+</style>

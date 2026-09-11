@@ -1,0 +1,77 @@
+---
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  rows: { period: string; org: string; role: string }[]; // newest first
+}
+
+const { rows } = Astro.props;
+---
+
+<div class="career">
+  <Eyebrow as="h2">Career</Eyebrow>
+  <ol class="rows">
+    {
+      rows.map((row, i) => (
+        <li class:list={['row', { current: i === 0 }]}>
+          <span class="period">{row.period}</span>
+          <div class="what">
+            <div class="org">{row.org}</div>
+            <div class="role">{row.role}</div>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .career {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-5);
+  }
+  .rows {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--rule);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: var(--career-date) minmax(0, 1fr);
+    gap: var(--s-6);
+    align-items: baseline;
+    margin: 0 calc(-1 * var(--s-3));
+    padding: var(--s-4) var(--s-3);
+    border-radius: var(--r-sm);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .row:last-child {
+    border-bottom-color: transparent;
+  }
+  .period {
+    font: var(--t-mono-date);
+    letter-spacing: var(--track-date);
+    color: var(--ink-faint);
+    transition: color var(--d-border) ease;
+  }
+  .current .period {
+    color: var(--ink);
+  }
+  .row:hover .period {
+    color: var(--accent);
+  }
+  .what {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+  }
+  .org {
+    font: var(--t-org);
+    color: var(--ink);
+  }
+  .role {
+    font: var(--t-note);
+    color: var(--ink-muted);
+  }
+</style>

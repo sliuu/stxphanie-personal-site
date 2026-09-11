@@ -1,0 +1,171 @@
+---
+// Draggable anonymous-feedback tab. Moves freely within the viewport; pulled
+// past an edge it resists, and springs back inside on release. Place inside a
+// positioned container. Desktop only; not draggable under
+// prefers-reduced-motion.
+---
+
+<div class="tab only-desktop" data-drag>
+  <div class="card">
+    <span class="grip" aria-hidden="true">⠿</span>
+    <button type="button" class="open" data-feedback-open>leave me anonymous feedback!</button>
+  </div>
+</div>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const STRETCH = 80; // furthest the tab can be pulled past an edge, in px
+
+  // Inside [lo, hi] the tab follows the pointer 1:1. Past it, each extra px
+  // moves it less, approaching STRETCH but never reaching it.
+  const band = (over: number) => (1 - 1 / ((over * 0.55) / STRETCH + 1)) * STRETCH;
+  const resist = (offset: number, lo: number, hi: number) =>
+    offset < lo ? lo - band(lo - offset) : offset > hi ? hi + band(offset - hi) : offset;
+  const clamp = (offset: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, offset));
+
+  for (const tab of document.querySelectorAll<HTMLElement>('[data-drag]')) {
+    let x = 0;
+    let y = 0;
+    let startX = 0;
+    let startY = 0;
+    let originX = 0;
+    let originY = 0;
+    let dx = 0;
+    let dy = 0;
+    let minX = 0;
+    let maxX = 0;
+    let minY = 0;
+    let maxY = 0;
+    let dragging = false;
+    let frame = 0;
+    let last: PointerEvent | null = null;
+
+    const place = (scale: number) => {
+      tab.style.transform = `translate(${x}px, ${y}px) rotate(-7deg) scale(${scale})`;
+    };
+
+    tab.addEventListener('pointerdown', (e) => {
+      if (reduce.matches || e.button !== 0) return;
+      if ((e.target as Element).closest('[data-feedback-open]')) return;
+      dragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      originX = x;
+      originY = y;
+      dx = 0;
+      dy = 0;
+      // How far the tab can move and stay on screen, widened to include where
+      // it starts in case it's already partly off (scrolled half out of view).
+      const rect = tab.getBoundingClientRect();
+      minX = Math.min(0, -rect.left);
+      maxX = Math.max(0, document.documentElement.clientWidth - rect.right);
+      minY = Math.min(0, -rect.top);
+      maxY = Math.max(0, innerHeight - rect.bottom);
+      tab.setPointerCapture(e.pointerId);
+      tab.style.animation = 'none';
+      tab.dataset.state = 'lifting';
+      place(1.06);
+      e.preventDefault();
+    });
+
+    tab.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      last = e;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (!dragging || !last) return;
+        dx = last.clientX - startX;
+        dy = last.clientY - startY;
+        x = originX + resist(dx, minX, maxX);
+        y = originY + resist(dy, minY, maxY);
+        tab.dataset.state = 'dragging';
+        place(1.06);
+      });
+    });
+
+    const release = () => {
+      if (!dragging) return;
+      dragging = false;
+      cancelAnimationFrame(frame);
+      frame = 0;
+      last = null;
+      x = originX + clamp(dx, minX, maxX);
+      y = originY + clamp(dy, minY, maxY);
+      tab.dataset.state = 'released';
+      place(1);
+    };
+    tab.addEventListener('pointerup', release);
+    tab.addEventListener('pointercancel', release);
+  }
+</script>
+
+<style>
+  .tab {
+    position: absolute;
+    right: var(--tab-right);
+    bottom: var(--tab-bottom);
+    z-index: 20;
+    border-radius: var(--r-md);
+    transform: rotate(-7deg);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    animation: tabin var(--d-enter) var(--ease-out) 0.3s both;
+  }
+  .tab[data-state='lifting'] {
+    cursor: grabbing;
+    transition: transform var(--d-lift) var(--ease-out);
+  }
+  .tab[data-state='dragging'] {
+    cursor: grabbing;
+    transition: none;
+  }
+  .tab[data-state='released'] {
+    transition: transform var(--d-spring) var(--ease-spring);
+  }
+
+  @keyframes tabin {
+    from {
+      opacity: 0;
+      transform: rotate(-7deg) translateX(40px);
+    }
+  }
+
+  .card {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-3) var(--s-5) var(--s-3) var(--s-4);
+    background: var(--glass);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+  }
+  .grip {
+    font: var(--t-mono-index);
+    letter-spacing: var(--track-date);
+    color: var(--ink-decorative);
+  }
+  .open {
+    font: var(--t-mono-nav);
+    letter-spacing: var(--track-date);
+    color: var(--ink);
+    transition:
+      opacity var(--d-color),
+      transform var(--d-press) var(--ease-out);
+  }
+  .open:hover {
+    opacity: 0.6;
+  }
+  .open:active {
+    transform: scale(0.97);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tab {
+      animation: none;
+      cursor: auto;
+    }
+  }
+</style>

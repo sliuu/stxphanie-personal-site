@@ -1,0 +1,34 @@
+---
+// Mono all-caps label. Write the text in sentence case; CSS sets the caps.
+interface Props {
+  size?: 'nav' | 'label';
+  tone?: 'faint' | 'muted';
+  as?: 'div' | 'span' | 'p' | 'h2' | 'h3' | 'dt';
+  id?: string;
+}
+
+const { size = 'nav', tone = 'faint', as: Tag = 'div', id } = Astro.props;
+---
+
+<Tag class:list={['eyebrow', size, tone]} id={id}><slot /></Tag>
+
+<style>
+  .eyebrow {
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .nav {
+    font: var(--t-mono-nav);
+    letter-spacing: var(--track-eyebrow);
+  }
+  .label {
+    font: var(--t-mono-label);
+    letter-spacing: var(--track-label);
+  }
+  .faint {
+    color: var(--ink-faint);
+  }
+  .muted {
+    color: var(--ink-muted);
+  }
+</style>

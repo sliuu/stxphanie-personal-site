@@ -1,0 +1,50 @@
+---
+// A numbered case-study section. The lede is the page's skim layer.
+interface Props {
+  id: string;
+  index: string;
+  title: string;
+  lede?: string;
+}
+
+const { id, index, title, lede } = Astro.props;
+---
+
+<section class="section" id={id} aria-labelledby={`${id}-title`} data-spy-section data-spy-index={index} data-spy-title={title}>
+  <div class="head">
+    <span class="index">{index}</span>
+    <h2 id={`${id}-title`}>{title}</h2>
+  </div>
+  {lede && <p class="lede">{lede}</p>}
+  <slot />
+</section>
+
+<style>
+  .section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-block);
+    scroll-margin-top: var(--scroll-offset);
+  }
+  .head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--gap-head);
+    padding-top: var(--pad-inset);
+    border-top: 1px solid var(--rule);
+  }
+  .index {
+    font: var(--t-mono-index);
+    color: var(--accent);
+  }
+  h2 {
+    font: var(--t-section);
+    letter-spacing: var(--track-section);
+    color: var(--ink);
+  }
+  .lede {
+    font: var(--t-lede);
+    letter-spacing: var(--track-lede);
+    color: var(--accent);
+  }
+</style>

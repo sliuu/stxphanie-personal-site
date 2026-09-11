@@ -1,0 +1,248 @@
+/* stxphanie.com — design tokens
+   Single source of truth. Every color, size, space, radius, and easing
+   in the design maps to one of these. Nothing in the build should
+   introduce a raw hex or a one-off px value. */
+
+:root {
+  /* ---- Color: surfaces ---- */
+  --paper:            #f6f4ef;  /* page background */
+  --paper-raised:     #fffdf8;  /* cards, diagram panels */
+  --paper-sunken:     #efece3;  /* placeholder / empty-state fill */
+  --paper-inset:      #ece8de;  /* video poster background */
+  --hover-wash:       rgba(43, 40, 37, 0.03);  /* row hover */
+  --hover-wash-strong:rgba(43, 40, 37, 0.06);  /* nav button hover */
+
+  /* ---- Color: ink ---- */
+  --ink:              #2b2825;  /* headings, primary text */
+  --ink-soft:         #3a3733;  /* large secondary statements */
+  --ink-body:         #4a473f;  /* body copy */
+  --ink-muted:        #6b675e;  /* captions, inactive rail, notes */
+  --ink-faint:        #8a867c;  /* mono eyebrows, meta */
+  /* #a09b90 was used for de-emphasized mono text; it fails 4.5:1 on
+     --paper. Use --ink-muted instead. Kept only for decorative
+     numerals adjacent to a labelled heading. */
+  --ink-decorative:   #a09b90;
+
+  /* ---- Color: lines ---- */
+  --rule:             #ddd8cc;  /* section rules, strong dividers */
+  --rule-soft:        #e6e1d6;  /* inner dividers, sidebar edge */
+  --border:           #e2ded4;  /* media and card borders */
+  --border-dashed:    #cfc9bb;  /* pending-asset placeholders */
+  --border-strong:    #c9c3b5;  /* card hover border */
+
+  /* ---- Color: accent ---- */
+  --accent:           #a3383a;  /* section ledes, links, primary button */
+  --accent-hover:     #bf4b48;
+  --accent-press:     #8c2f31;
+  --accent-line:      rgba(163, 56, 58, 0.35);  /* link underline */
+  --accent-line-soft: rgba(163, 56, 58, 0.40);  /* icon button border */
+
+  /* ---- Typography ---- */
+  --font-sans: 'Gabarito', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --weight-light:     300;
+  --weight-regular:   400;
+  --weight-medium:    500;
+  --weight-semibold:  600;
+
+  /* Type scale. Names describe role, not size — the role is what
+     survives a redesign. Line-height and tracking are part of the
+     token; do not set them independently. */
+  --t-hero:      400 52px/1.10 var(--font-sans);   /* letter-spacing -0.030em */
+  --t-section:   400 34px/1.15 var(--font-sans);   /* -0.025em */
+  --t-statement: 400 26px/1.40 var(--font-sans);   /* -0.016em — thesis band */
+  --t-accordion: 400 24px/1.30 var(--font-sans);   /* -0.014em */
+  --t-callout:   400 26px/1.35 var(--font-sans);   /* -0.020em */
+  --t-large:     400 24px/1.50 var(--font-sans);   /* -0.014em */
+  --t-lede:      400 22px/1.45 var(--font-sans);   /* -0.015em — accent */
+  --t-subhead:   400 19px/1.60 var(--font-sans);
+  --t-lead:      400 17px/1.65 var(--font-sans);
+  --t-body:      400 16px/1.75 var(--font-sans);
+  --t-body-tight:400 16px/1.65 var(--font-sans);   /* list rows */
+  --t-item:      500 20px/1.00 var(--font-sans);   /* -0.012em */
+  --t-meta:      400 14px/1.50 var(--font-sans);
+  --t-note:      400 13px/1.70 var(--font-sans);
+
+  --t-mono-nav:    400 11px/1 var(--font-mono);    /* .18em — wordmark, eyebrow */
+  --t-mono-rail:   400 14px/1 var(--font-sans);    /* rail items are sans */
+  --t-mono-button: 500 12px/1 var(--font-mono);
+  --t-mono-caption:400 11px/1.70 var(--font-mono);
+  --t-mono-label:  400 10px/1 var(--font-mono);    /* .16em — small eyebrow */
+  --t-mono-date:   400 11px/1.40 var(--font-mono); /* .06em — career years */
+
+  --track-hero:      -0.030em;
+  --track-section:   -0.025em;
+  --track-statement: -0.016em;
+  --track-accordion: -0.014em;
+  --track-callout:   -0.020em;
+  --track-lede:      -0.015em;
+  --track-large:     -0.014em;
+  --track-item:      -0.012em;
+  --track-eyebrow:    0.180em;
+  --track-label:      0.160em;
+  --track-date:       0.060em;
+
+  /* ---- Space ---- */
+  --s-1:  4px;   --s-2:  8px;   --s-3:  12px;  --s-4:  14px;
+  --s-5:  16px;  --s-6:  20px;  --s-7:  22px;  --s-8:  26px;
+  --s-9:  28px;  --s-10: 34px;  --s-11: 36px;  --s-12: 44px;
+  --s-13: 56px;  --s-14: 64px;  --s-15: 88px;  --s-16: 90px;
+
+  --gap-section:     64px;  /* between case-study sections */
+  --gap-block:       26px;  /* inside a section */
+  --gap-media:       16px;  /* figure to caption */
+  --pad-page-x:      56px;  /* home page gutter */
+  --pad-rail:        44px;  /* case-study top padding */
+  --pad-case-bottom: 88px;
+
+  /* ---- Layout ---- */
+  --measure:      660px;  /* reading column AND media cap */
+  --rail-width:   250px;
+  --rail-gutter:  32px;
+  --sidebar-total:327px;  /* rail + padding + 1px divider */
+  --thumb-height: 246px;  /* accordion thumbnails */
+  --canvas-width: 1360px; /* design width; the built site is fluid */
+
+  /* ---- Radius ---- */
+  --r-xs: 4px;   /* badges */
+  --r-sm: 6px;   /* buttons, rows, mobile media */
+  --r-md: 7px;   /* nav buttons */
+  --r-lg: 8px;   /* media, desktop */
+  --r-xl: 10px;  /* cards */
+
+  /* ---- Motion ---- */
+  --ease-out:    cubic-bezier(0.16, 0.80, 0.24, 1.00);  /* entrances */
+  --ease-shift:  cubic-bezier(0.20, 0.90, 0.30, 1.00);  /* hover moves, accordion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1.00);  /* drag release */
+
+  --d-color:     0.25s;  /* color / background */
+  --d-border:    0.30s;
+  --d-shift:     0.35s;  /* translate on hover */
+  --d-accordion: 0.60s;  /* panel height */
+  --d-enter:     0.80s;  /* scroll / load reveal */
+  --d-enter-alt: 0.90s;
+
+  /* ================================================================
+     Build additions. Values read off the drawn artboards (4l, cs1b,
+     5a, 5b) that the handoff tokens didn't name yet.
+     ================================================================ */
+
+  /* Color */
+  --ink-line:     rgba(43, 40, 37, 0.30);   /* inline link underline */
+  --accent-dash:  rgba(163, 56, 58, 0.45);  /* hero role word underline */
+  --accent-focus: rgba(163, 56, 58, 0.60);  /* text field focus border */
+  --accent-select:rgba(163, 56, 58, 0.18);  /* text selection highlight */
+  --scrim:        rgba(28, 26, 22, 0.42);   /* dialog backdrop */
+  --glass:        rgba(255, 253, 248, 0.20);/* feedback tab fill */
+
+  /* Type */
+  --display-size:  clamp(40px, 4.85vw, 66px);           /* 66px at the 1360 canvas */
+  --t-display:     400 var(--display-size)/1.10 var(--font-sans); /* home headline */
+  --t-org:         500 16px/1.30 var(--font-sans);      /* career org */
+  --t-diagram:     400 18px/1.35 var(--font-sans);      /* diagram role, -0.015em */
+  --t-list-large:  400 18px/1.60 var(--font-sans);      /* large dash list */
+  --t-small:       400 14px/1.55 var(--font-sans);      /* diagram items */
+  --t-field:       400 15px/1.60 var(--font-sans);      /* textarea, dialog body */
+  --t-confirm:     400 20px/1.30 var(--font-sans);      /* dialog sent state, -0.016em */
+  --t-plus:        300 22px/1 var(--font-sans);         /* accordion + glyph */
+  --t-mono-small:  400 12px/1 var(--font-mono);         /* back links, row index */
+  --t-mono-index:  400 13px/1 var(--font-mono);         /* section numbers */
+  --t-mono-org:    400 15px/1 var(--font-mono);         /* accordion org · year, .01em */
+  --t-close:       400 18px/1 var(--font-mono);         /* dialog close glyph */
+  --t-mono-cta:    500 13px/1 var(--font-mono);         /* live link, send */
+  --t-mono-note:   400 10px/1.70 var(--font-mono);      /* rail note, diagram exchange */
+
+  --track-display:  -0.034em;
+  --track-diagram:  -0.015em;
+  --track-confirm:  -0.016em;
+  --track-org:       0.010em;
+  --track-exchange:  0.120em;
+  --track-pending:   0.040em;
+
+  /* Space */
+  --pad-nav-top:        30px;
+  --pad-hero-top:       180px;
+  --pad-hero-bottom:    96px;
+  --gap-hero:           72px;
+  --gap-home:           90px;  /* below each home section */
+  --gap-head:           18px;  /* number → heading, label → text */
+  --gap-tight:          9px;   /* dialog titles, diagram items */
+  --pad-inset:          24px;  /* section-head top, callout, pull-quote indent */
+  --pad-rail-item:      7px;
+  --pad-contact-top:    84px;
+  --pad-contact-bottom: 92px;
+  --scroll-offset:      20px;  /* anchor jump clearance */
+
+  /* Layout */
+  --measure-narrow: 520px;  /* thesis band paragraph */
+  --measure-note:   400px;  /* dialog fine print */
+  --career-date:    92px;
+  --diagram-band:   124px;
+  --dialog-width:   520px;
+  --field-height:   132px;
+  --control-sm:     34px;
+  --control-lg:     46px;
+  --icon:           19px;
+  --icon-lg:        20px;
+  --tab-right:      96px;
+  --tab-bottom:     150px;
+
+  /* Radius */
+  --r-dialog: 12px;
+  --r-media:  var(--r-lg);
+
+  /* Motion */
+  --d-fade:   0.40s;  /* accordion panel opacity */
+  --d-plus:   0.50s;  /* accordion + rotation */
+  --d-lift:   0.18s;  /* feedback tab pick-up */
+  --d-spring: 0.55s;  /* feedback tab release */
+  --d-swap:   0.16s;  /* hero role word fade, each way */
+  --d-press:     0.16s;  /* press feedback scale */
+  --d-modal-in:  0.20s;  /* dialog open */
+  --d-modal-out: 0.15s;  /* dialog close: faster than open */
+  --d-confirm:   0.30s;  /* dialog sent state, per line */
+  --stagger:     0.05s;  /* between lines of the sent state */
+  --d-reveal:    0.75s;  /* scroll reveal: shorter than the load-in, so
+                            fast scrolling doesn't wait on content */
+}
+
+/* Mobile (drawn at 390px as artboard 5b). */
+@media (max-width: 899px) {
+  :root {
+    --pad-page-x:      20px;
+    --gap-section:     44px;
+    --gap-block:       20px;
+    --gap-head:        14px;
+    --pad-inset:       20px;
+    --pad-rail:        28px;
+    --pad-case-bottom: 56px;
+    --pad-nav-top:     18px;
+    --pad-hero-top:    72px;
+    --pad-hero-bottom: 56px;
+    --gap-hero:        48px;
+    --gap-home:        56px;
+    --pad-contact-top:    56px;
+    --pad-contact-bottom: 64px;
+    --scroll-offset:   88px;  /* clears the sticky progress strip */
+    --thumb-height:    200px;
+    --r-media:         var(--r-sm);
+
+    --t-hero:         400 34px/1.12 var(--font-sans);
+    --t-section:      400 26px/1.15 var(--font-sans);
+    --t-lede:         400 19px/1.40 var(--font-sans);
+    --t-subhead:      400 17px/1.55 var(--font-sans);
+    --t-accordion:    400 19px/1.35 var(--font-sans);
+    --t-statement:    400 21px/1.40 var(--font-sans);
+    --t-callout:      400 21px/1.35 var(--font-sans);
+    --t-large:        400 20px/1.50 var(--font-sans);
+    --t-body:         400 16px/1.70 var(--font-sans);
+    --t-mono-caption: 400 10px/1.70 var(--font-mono);
+    --t-mono-index:   400 12px/1 var(--font-mono);
+    --t-mono-org:     400 12px/1 var(--font-mono);
+
+    --track-hero:    -0.025em;
+    --track-section: -0.020em;
+    --track-lede:    -0.010em;
+  }
+}

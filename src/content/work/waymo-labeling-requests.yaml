@@ -1,0 +1,206 @@
+# See youtube-ads-prototyping-tool.yaml for the inline markup and pending-asset
+# conventions.
+
+title: Waymo Label Requesting Redesign
+org: Waymo
+year: "2024"
+order: 2
+
+cardTitle: A request form that explains itself
+summary: >-
+  Turning a sprawling, tribal-knowledge request process into a guided form that explains itself. Made trade-offs to fit the needs of the majority of users. Every field says what it's for and what happens downstream, so the most common requests wouldn't need a labeling engineer on call.
+thumb: assets/home/waymo-thumb.png
+thumbAlt: Labeling request prototype
+
+dek: >-
+  Redesigning how ML engineers request human-labeled data at Waymo — collapsing a sprawling, tribal-knowledge process into a guided multi-step form that doesn't need a labeling engineer on call.
+team: Waymo ML Infrastructure & UX
+role: UX Design & Prototyping
+timeline: Oct – Dec 2024
+tools: Figma, HTML, CSS, JavaScript
+prototypeHref: https://label-requesting-prototype.stxphanie.com/
+prototypeNote: A standalone raw HTML/CSS/JS prototype of the handoff
+confidentialityNote: >-
+  Note: These screens are my own redesigns. Copy, labels, and advanced settings were rewritten or invented to protect Waymo's confidential information — some deliberately unrelated to the real tool.
+
+hero:
+  src: assets/waymo-labeling-requests/request-flow-walkthrough.mp4 # pending
+  alt: The redesigned request flow, end to end
+  ratio: 16/10
+  caption: The redesigned request flow, end to end.
+
+sections:
+  - title: The problem
+    lede: A hand-held process that stopped scaling as Waymo grew.
+    blocks:
+      - type: prose
+        text: >-
+          Human-labeled data powers self-driving: it's how what the car sees becomes something a model can learn from. Labels range from 2D bounding boxes to timestamps to open questions about a run — and every new label type starts with an ML engineer explaining to a group of labelers exactly what they need and how to do it.
+      - type: figure
+        src: assets/waymo-labeling-requests/waymo-labeled-medium.webp # pending
+        alt: An example of a labeled Waymo run
+        ratio: 16/9
+        # Third-party image; keep the credit.
+        caption: |-
+          An example of a labeled Waymo run
+          Image © Waymo — Waymo Open Dataset. Source: medium.com/waymo
+      - type: prose
+        text:
+          - >-
+            Historically, the labeling team hand-held every ML engineer through most of their labeling requests. New labeling requests often required new detailed policies that were explained through layers of documentation, new protos for new attributes, and a back-and-forth with the labeling team to understand what needed to be defined and why.
+          - >-
+            That worked when the company was small. As Waymo grew, it became a bottleneck with a labeling engineer required every time someone needed something new.
+      - type: callout
+        label: Challenge
+        text: >-
+          Can ML engineers request labels directly from Labeling Ops without requiring multiple bugs, discussions, and help from labeling engineers?
+
+  - title: Research
+    lede: Cognitive walkthroughs, a heuristic evaluation, and interviews.
+    blocks:
+      - type: prose
+        text: >-
+          I worked on several different forms of research to understand the current process and its pain points:
+      - type: list
+        items:
+          - >-
+            **Cognitive walkthroughs:** I simulated a brand-new ML engineer and an experienced user each creating a new labeling request with custom fields, and jotted down every point of confusion, every question, and every place where the user had to leave the flow to look up information.
+          - Heuristic evaluation of the existing workflow against Nielsen’s 10 usability heuristics.
+          - >-
+            User interviews with both experienced and newer members of ML engineering teams to understand their common workflows, pain points, and where they needed help.
+
+  - title: Key insights
+    lede: Too many ways in, an internal vocabulary, and advanced settings standing between people and the one or two fields they came to change.
+    blocks:
+      - type: prose
+        text: >-
+          Charting the current process revealed the first problem before any interview did. Documentation pointed to several possible starting points, and each of those led to a different path through the request process. Multiple entry points, redundant documentation, internal vocabulary, and required steps that only applied to advanced users made the process painful for new users.
+      - type: figure
+        src: assets/waymo-labeling-requests/existing-process-flow-chart.png # pending
+        alt: Flow chart of the existing labeling request process
+        ratio: 16/7
+        caption: Flow chart of the existing labeling request process, showing many divergent entry points
+      - type: prose
+        text: >-
+          The interviews turned up the finding that shaped everything after it. Most people weren't filing new requests at all. They wanted an existing request with one or two things changed — a different attribute, an extra question, a wider range. But the only route to those two fields ran through the entire form, and the form was long enough and opaque enough that they gave up and asked an engineer to make the change for them. The bottleneck wasn't the hard requests. It was the easy ones arriving through the same door.
+      - type: quote
+        text: >-
+          Most requests weren't new. They were an existing request with one or two fields changed — and the form was too long to make that change without help.
+      - type: prose
+        text:
+          - >-
+            From there I inventoried every piece of information a request actually needs, grouped the related settings, and separated what users change constantly from the advanced settings they touch infrequently.
+          - >-
+            I pulled documentation out of several sources and added clearer guidance within the interface itself, so users could learn the vocabulary and understand the options without leaving the flow.
+
+  - title: The first version
+    lede: I scoped it to a few pages. The real requests didn't fit.
+    blocks:
+      - type: prose
+        text:
+          - >-
+            Coming out of research I thought the answer was compression. Take the sprawling form, keep the handful of fields most people actually touch, hide the rest, and land the whole thing in a few pages. It was easy to draw and easy to argue for.
+          - >-
+            It didn't survive contact with the real requests. Most of them weren't simple — they were **somewhat** complicated, each carrying a few advanced settings that mattered enormously to the person filing and a different few every time. A three-page form would have demoed beautifully and failed the actual job, sending exactly the same people back to an engineer for exactly the same reason.
+          - >-
+            So the form had to grow rather than shrink, which meant the number I'd been optimizing was the wrong one. Total length was never what made the old form unusable. What made it unusable was how much you had to hold in your head at once, and how far you had to get before you were allowed to stop.
+      - type: callout
+        label: The correction
+        text: The goal was never a shorter form. It was a form you could put down.
+
+  - title: The redesign
+    lede: One hub, one wizard, and documentation moved into the interface.
+    blocks:
+      - type: prose
+        text:
+          - >-
+            I redesigned the request flow as a wizard. I grouped related settings into steps, promoted documentation from tooltips into the interface itself, and tucked advanced settings behind toggles.
+          - >-
+            The constraint I couldn't design around: the full set of ways to tune a labeling project cannot become an easy guided wizard. There are too many options, and each matters to somebody. So the wizard only makes the easy case possible, and finding out what counted as easy was grunt work — reading through past requests and talking to the people who filed them. The cost is that hard cases still go to the long form.
+          - "Components of the redesign:"
+      - type: list
+        items:
+          - A central hub for creating labeling requests and tracking their progress
+          - A guided wizard with clear in-context instruction and hidden advanced settings
+          - Streamlined continuous and one-time data importing
+
+      - type: group
+        label: Pass one — a wizard instead of a wall
+        blocks:
+          - type: prose
+            text: The new wizard breaks up a long process into saveable, manageable steps, and hides advanced features unless needed.
+          - type: figure
+            src: assets/waymo-labeling-requests/wizard-step-1-basics.png
+            alt: Wizard step one, project configuration
+            caption: >-
+              Step 1 of 7 in the redesigned wizard, 'First, the basics': naming the request, choosing a production or experimental environment, a description, owners and team, with advanced settings tucked behind a toggle at the bottom
+      - type: group
+        label: Pass two — documentation where the decision is
+        rule: false
+        blocks:
+          - type: prose
+            text: The redesigned quality-control step uses plain-language documentation for each method.
+          - type: figure
+            src: assets/waymo-labeling-requests/wizard-step-quality-control.png # pending
+            alt: The redesigned quality-control step
+            ratio: 16/10
+            caption: The redesigned quality-control step
+      - type: group
+        rule: false
+        blocks:
+          - type: prose
+            text: >-
+              A new section configures labeling questions right in the labeling request flow, and shows a preview of what the labeler will see.
+          - type: figure
+            src: assets/waymo-labeling-requests/wizard-step-4-labeling-questions.png
+            alt: Wizard step four, labeling questions with live preview
+            caption: >-
+              Step 4 of the wizard, 'What will labelers answer?': reusing, copying, or writing the question set, with a live preview of the questions as the labeler will see them
+      - type: group
+        label: Pass three — review, then track
+        rule: false
+        blocks:
+          - type: prose
+            text: A review step provides feedback before saving.
+          - type: figure
+            src: assets/waymo-labeling-requests/wizard-step-review.png # pending
+            alt: The review step before saving
+            ratio: 16/10
+            caption: Review step
+      - type: group
+        rule: false
+        blocks:
+          - type: prose
+            text: The new dashboard for tracking labeling requests, instead of using the overloaded bug tracker.
+          - type: figure
+            src: assets/waymo-labeling-requests/request-dashboard.png
+            alt: Label Console request dashboard
+            caption: The new dashboard to track labeling requests
+
+  - title: What the work established
+    lede: One way in, documentation where the decisions are, and a form that admits what it can't do.
+    blocks:
+      - type: list
+        style: ruled
+        items:
+          - >-
+            **One way in.** A central place for creating and tracking requests, instead of several documented entry points that each led somewhere different.
+          - >-
+            **Documentation as interface.** Explanations moved out of tooltips and out of documentation and into the moments where users make decisions, so the form teaches the vocabulary it uses.
+          - >-
+            **Progressive disclosure.** Gathered research data about what was commonly used and what wasn’t, and tucked advanced settings behind toggles so users only see what they need.
+      - type: statement
+        text: >-
+          The intended effect: ML engineers who can make and track their own requests, and labeling engineers who get their time back.
+
+  - title: Takeaways
+    lede: Two years on I'd keep the wizard, and move the line it draws.
+    blocks:
+      - type: prose
+        text:
+          - >-
+            Two years on, most of this still holds. The core move — copy an existing attribute list, change a few fields, add your questions — is still how the majority of requests should start, because it's still true that most requests are edits of something that already worked rather than something new.
+          - >-
+            What I'd add now is the part the wizard deliberately refused. The hard cases still go to the long form and the labeling engineer, and I accepted that boundary as the price of making the easy case easy. A small chat assistant living inside the flow could take most of it: pull the relevant documentation into the moment it's actually needed, explain what an advanced setting does in the requester's own terms, and toggle the fields they can't find on their own.
+          - >-
+            The wizard handles the barebones case. An assistant could handle the next ten percent — the somewhat-complicated requests that currently bounce to an engineer for no better reason than that nobody can explain the form. That doesn't remove the labeling engineer from the loop. It moves the line, and leaves them the cases that genuinely need their judgment.

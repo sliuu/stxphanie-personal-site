@@ -1,0 +1,216 @@
+---
+// Two columns under the nav: sticky contents rail + reading column. Owns the
+// scroll-spy that drives both the rail and the mobile progress strip.
+import BaseLayout from './BaseLayout.astro';
+import Button from '../components/Button.astro';
+import Eyebrow from '../components/Eyebrow.astro';
+import MobileProgressStrip from '../components/MobileProgressStrip.astro';
+import SiteNav from '../components/SiteNav.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  sections: { id: string; index: string; title: string }[];
+  prototypeHref?: string;
+  prototypeNote?: string;
+}
+
+const { title, description, sections, prototypeHref, prototypeNote } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <MobileProgressStrip sections={sections} />
+  <div class="only-desktop">
+    <SiteNav />
+  </div>
+
+  <div class="case">
+    <aside class="rail" aria-label="Case study">
+      <a class="back" href="/#work">← All work</a>
+      <nav class="contents" aria-labelledby="contents-title">
+        <Eyebrow size="label" id="contents-title">Contents</Eyebrow>
+        <ol>
+          {
+            sections.map((s) => (
+              <li>
+                <a class="rail-link" href={`#${s.id}`} data-spy-link={s.id}>
+                  <span class="index">{s.index}</span>
+                  <span>{s.title}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      {
+        prototypeHref && (
+          <div class="prototype">
+            <Button href={prototypeHref}>Open the prototype ↗</Button>
+            {prototypeNote && <p class="note">{prototypeNote}</p>}
+          </div>
+        )
+      }
+    </aside>
+
+    <main>
+      <div class="column">
+        <slot />
+      </div>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .case {
+    display: grid;
+    grid-template-columns: var(--sidebar-total) minmax(0, 1fr);
+    container-type: inline-size;
+  }
+
+  .rail {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-11);
+    padding: var(--pad-rail) var(--rail-gutter) var(--pad-rail) var(--pad-rail);
+  }
+  .back {
+    font: var(--t-mono-rail);
+    color: var(--ink-muted);
+    transition: color var(--d-color);
+  }
+  .back:hover {
+    color: var(--ink);
+  }
+  .contents {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-5);
+  }
+  .contents ol {
+    display: flex;
+    flex-direction: column;
+  }
+  .rail-link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-3);
+    padding: var(--pad-rail-item) 0 var(--pad-rail-item) var(--s-4);
+    font: var(--t-mono-rail);
+    color: var(--ink-muted);
+    border-left: 2px solid var(--rule);
+    transition:
+      color var(--d-color),
+      border-color var(--d-color);
+  }
+  .rail-link .index {
+    flex: none;
+    font: var(--t-mono-label);
+    letter-spacing: var(--track-label);
+  }
+  .rail-link:hover {
+    color: var(--ink);
+    border-left-color: var(--ink-decorative);
+  }
+  .rail-link[aria-current] {
+    color: var(--ink);
+    border-left-color: var(--accent);
+  }
+  .prototype {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-4);
+    padding-top: var(--s-9);
+    border-top: 1px solid var(--rule);
+  }
+  .note {
+    font: var(--t-mono-note);
+    color: var(--ink-muted);
+  }
+
+  /* The right padding grows until the measure sits centred on the whole page
+     (sidebar included), and shrinks toward --s-12 as the viewport narrows. */
+  main {
+    --pad-divider: var(--s-12); /* divider to reading column */
+    min-width: 0;
+    padding: var(--pad-rail)
+      clamp(var(--s-12), 100cqw - var(--sidebar-total) - var(--pad-divider) - var(--measure), var(--sidebar-total) + var(--pad-divider))
+      var(--pad-case-bottom) var(--pad-divider);
+    border-left: 1px solid var(--rule-soft);
+  }
+  .column {
+    max-width: var(--measure);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-section);
+  }
+
+  @media (max-width: 899px) {
+    .case {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rail {
+      display: none;
+    }
+    main {
+      padding: var(--pad-rail) var(--pad-page-x) var(--pad-case-bottom);
+      border-left: 0;
+    }
+  }
+</style>
+
+<script>
+  // A section is current once its top passes 30% of the viewport; at the
+  // bottom of the page the last one wins, since it may never get that high.
+  const sections = [...document.querySelectorAll<HTMLElement>('[data-spy-section]')];
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-spy-link]')];
+  const label = document.querySelector<HTMLElement>('[data-strip-label]');
+  const count = document.querySelector<HTMLElement>('[data-strip-count]');
+  const bar = document.querySelector<HTMLElement>('[data-strip-bar]');
+
+  let active = -1;
+  let queued = false;
+
+  function update() {
+    queued = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const progress = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 1;
+    if (bar) bar.style.transform = `scaleX(${progress})`;
+
+    let current = 0;
+    if (max > 0 && scrollY >= max - 2) {
+      current = sections.length - 1;
+    } else {
+      const line = innerHeight * 0.3;
+      sections.forEach((section, i) => {
+        if (section.getBoundingClientRect().top <= line) current = i;
+      });
+    }
+    if (current === active || !sections[current]) return;
+    active = current;
+
+    const section = sections[current];
+    for (const link of links) {
+      if (link.dataset.spyLink === section.id) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    }
+    if (label) label.textContent = `${section.dataset.spyIndex}  ${section.dataset.spyTitle}`;
+    if (count) count.textContent = `${current + 1} / ${sections.length}`;
+  }
+
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  }
+
+  addEventListener('scroll', schedule, { passive: true });
+  addEventListener('resize', schedule);
+  update();
+</script>

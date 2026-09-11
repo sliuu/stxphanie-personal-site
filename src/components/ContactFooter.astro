@@ -1,0 +1,79 @@
+---
+import Button from './Button.astro';
+import Eyebrow from './Eyebrow.astro';
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<section class="contact" aria-labelledby="contact-title">
+  <Eyebrow as="h2" id="contact-title">Get in touch</Eyebrow>
+  <div class="icons">
+    <Button variant="icon" tone="solid" size="lg" href={`mailto:${site.email}`} label={`Email ${site.email}`}>
+      <Icon name="mail" size="lg" />
+    </Button>
+    <Button variant="icon" tone="outline" size="lg" href={site.linkedinHref} label="LinkedIn">
+      <Icon name="linkedin" size="lg" />
+    </Button>
+    <Button variant="icon" tone="outline" size="lg" feedback label="Leave anonymous feedback">
+      <Icon name="feedback" size="lg" />
+    </Button>
+  </div>
+</section>
+
+<footer class="foot">
+  <span>© {year} {site.name}</span>
+  <div class="colophon">
+    <span>Built with Astro, TypeScript and hand-written CSS. Deployed on Vercel.</span>
+    <a href={site.repoHref}>code for this site ↗</a>
+  </div>
+</footer>
+
+<style>
+  .contact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-8);
+    padding: var(--pad-contact-top) var(--pad-page-x) var(--pad-contact-bottom);
+    border-top: 1px solid var(--rule);
+    text-align: center;
+  }
+  .icons {
+    display: flex;
+    gap: var(--s-2);
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--s-3) var(--pad-inset);
+    padding: var(--pad-inset) var(--pad-page-x);
+    border-top: 1px solid var(--rule-soft);
+    font: var(--t-mono-nav);
+    color: var(--ink-faint);
+  }
+  /* The build line sits above the repo link, both trailing the right edge. */
+  .colophon {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--s-1);
+    text-align: right;
+  }
+  .foot a {
+    transition: color var(--d-color);
+  }
+  .foot a:hover {
+    color: var(--ink);
+  }
+
+  @media (max-width: 899px) {
+    .colophon {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+</style>

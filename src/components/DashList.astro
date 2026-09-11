@@ -1,0 +1,60 @@
+---
+// Em-dash list. `ruled` separates items with soft rules instead of dashes —
+// the rule already marks where each item starts; `large` is the
+// statement-sized variant.
+import { inline } from '../lib/text';
+
+interface Props {
+  items: string[];
+  variant?: 'plain' | 'ruled' | 'large';
+}
+
+const { items, variant = 'plain' } = Astro.props;
+const dashed = variant !== 'ruled';
+---
+
+<ul class:list={['list', variant]}>
+  {
+    items.map((item) => (
+      <li>
+        {dashed && (
+          <span class="mark" aria-hidden="true">
+            —
+          </span>
+        )}
+        <span set:html={inline(item)} />
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+  }
+  li {
+    display: flex;
+    gap: var(--s-4);
+    font: var(--t-body-tight);
+    color: var(--ink-body);
+  }
+  .mark {
+    flex: none;
+    color: var(--accent);
+  }
+
+  .ruled {
+    gap: var(--s-5);
+  }
+  .ruled li {
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--rule-soft);
+  }
+
+  .large li {
+    font: var(--t-list-large);
+    color: var(--ink);
+  }
+</style>

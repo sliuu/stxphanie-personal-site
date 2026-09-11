@@ -1,0 +1,106 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CareerList from '../components/CareerList.astro';
+import Accordion from '../components/Accordion.astro';
+import ContactFooter from '../components/ContactFooter.astro';
+import Eyebrow from '../components/Eyebrow.astro';
+import FeedbackTab from '../components/FeedbackTab.astro';
+import Hero from '../components/Hero.astro';
+import SiteNav from '../components/SiteNav.astro';
+import StatementPair from '../components/StatementPair.astro';
+import { career, hero, project, statements } from '../data/site';
+import { pad } from '../lib/text';
+
+const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+const caseStudies = work.map((entry, i) => ({
+  index: pad(i + 1),
+  title: entry.data.cardTitle,
+  org: entry.data.org,
+  year: String(entry.data.year),
+  summary: entry.data.summary,
+  href: `/work/${entry.id}`,
+  thumb: entry.data.thumb,
+  thumbAlt: entry.data.thumbAlt,
+}));
+
+const projects = [
+  {
+    index: '01',
+    title: project.statement,
+    emphasis: project.emphasis,
+    org: project.liveLabel,
+    year: project.year,
+    summary: project.body,
+    href: project.liveHref,
+    linkLabel: `visit ${project.liveLabel.toLowerCase()}`,
+    external: true,
+    note: project.note,
+    thumb: project.image.src,
+    thumbAlt: project.image.alt,
+  },
+];
+---
+
+<BaseLayout>
+  <div class="home">
+    <SiteNav />
+    <main>
+      <Hero {...hero}>
+        <CareerList rows={career} />
+      </Hero>
+
+      <section id="work" aria-labelledby="work-title">
+        <div class="head work-head rise" style="--delay: 0.7s">
+          <Eyebrow as="h2" id="work-title">Case studies</Eyebrow>
+        </div>
+        <div class="band rise" style="--delay: 0.7s">
+          <Accordion items={caseStudies} idPrefix="case-study" />
+        </div>
+      </section>
+
+      <!-- Below the case studies, each block fades and rises as it scrolls
+           into view (script and rules in BaseLayout / global.css). -->
+      <section aria-labelledby="made-title" data-reveal>
+        <div class="head">
+          <Eyebrow as="h2" id="made-title">Things I’ve made</Eyebrow>
+        </div>
+        <div class="band">
+          <Accordion items={projects} idPrefix="project" />
+        </div>
+      </section>
+
+      <section aria-labelledby="about-title" data-reveal>
+        <div class="head">
+          <Eyebrow as="h2" id="about-title">About me</Eyebrow>
+        </div>
+        <div class="band">
+          <StatementPair statements={statements.items} image={statements.image} />
+        </div>
+      </section>
+
+      <div data-reveal>
+        <ContactFooter />
+      </div>
+    </main>
+    <FeedbackTab />
+  </div>
+</BaseLayout>
+
+<style>
+  /* The feedback tab is positioned against this; clip keeps its entrance
+     from adding a horizontal scrollbar. */
+  .home {
+    position: relative;
+    overflow-x: clip;
+  }
+  .head {
+    padding: 0 var(--pad-page-x) var(--s-8);
+  }
+  .work-head {
+    padding-top: var(--s-12);
+  }
+  .band {
+    padding: 0 var(--pad-page-x) var(--gap-home);
+  }
+</style>

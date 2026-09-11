@@ -1,0 +1,408 @@
+---
+// One dialog per page; any element with [data-feedback-open] opens it.
+// States: idle → sending → sent | error.
+import Eyebrow from './Eyebrow.astro';
+import { site } from '../data/site';
+
+const MAX = 600;
+const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/feedback.ts`;
+---
+
+<dialog class="dialog" data-feedback data-state="idle" aria-labelledby="feedback-title">
+  <div class="card">
+    <div class="head">
+      <div class="titles">
+        <h2 class="title" id="feedback-title">Leave me anonymous feedback</h2>
+        <p class="sub">Nothing is recorded about who you are. Say the useful thing.</p>
+      </div>
+      <button type="button" class="x" data-feedback-close aria-label="Close">✕</button>
+    </div>
+
+    <form class="form" data-feedback-form>
+      <div class="field">
+        <div class="field-head">
+          <label for="feedback-note"><Eyebrow as="span" size="label">Your note</Eyebrow></label>
+          <span class="count" data-feedback-count>0/{MAX}</span>
+        </div>
+        <textarea id="feedback-note" name="note" maxlength={MAX} required placeholder="Be as blunt as you like."
+        ></textarea>
+      </div>
+
+      <p class="error" data-feedback-error role="alert" hidden></p>
+
+      <div class="actions">
+        <button type="submit" class="send" data-feedback-send>send it →</button>
+      </div>
+
+      <div class="fine">
+        <p>
+          No name, no email, no IP, no cookies. Notes arrive without a timestamp, batched and delivered to me once a
+          week, so nothing can be matched back to a visit.
+        </p>
+        <a class="source" href={sourceHref}>api/feedback.ts — the code that receives this ↗</a>
+      </div>
+    </form>
+
+    <div class="done" data-feedback-done hidden>
+      <p class="done-title">Got it — thank you.</p>
+      <p class="done-body">I read everything that comes through here, and I can't tell who sent it. That's the point.</p>
+      <button type="button" class="close" data-feedback-close>close</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-feedback]');
+
+  if (dialog) {
+    const form = dialog.querySelector<HTMLFormElement>('[data-feedback-form]')!;
+    const note = form.querySelector('textarea')!;
+    const count = form.querySelector<HTMLElement>('[data-feedback-count]')!;
+    const send = form.querySelector<HTMLButtonElement>('[data-feedback-send]')!;
+    const error = form.querySelector<HTMLElement>('[data-feedback-error]')!;
+    const done = dialog.querySelector<HTMLElement>('[data-feedback-done]')!;
+    const sendLabel = send.textContent;
+
+    type State = 'idle' | 'sending' | 'sent' | 'error';
+    const setState = (state: State, message = '') => {
+      dialog.dataset.state = state;
+      send.disabled = state === 'sending';
+      send.textContent = state === 'sending' ? 'sending…' : sendLabel;
+      form.hidden = state === 'sent';
+      done.hidden = state !== 'sent';
+      error.hidden = state !== 'error';
+      error.textContent = message;
+    };
+
+    const updateCount = () => {
+      count.textContent = `${note.value.length}/${note.maxLength}`;
+    };
+
+    document.addEventListener('click', (e) => {
+      if (!(e.target as Element).closest('[data-feedback-open]')) return;
+      if (dialog.dataset.state !== 'sending') setState('idle');
+      dialog.showModal();
+      note.focus();
+    });
+
+    // Hold the dialog open with [data-closing] until its exit animation ends.
+    const close = () => {
+      if (!dialog.open || dialog.hasAttribute('data-closing')) return;
+      dialog.setAttribute('data-closing', '');
+      const exits = dialog
+        .getAnimations({ subtree: true })
+        .filter((a) => a instanceof CSSAnimation && a.animationName.startsWith('dialog-'))
+        .map((a) => a.finished);
+      Promise.allSettled(exits).then(() => dialog.close());
+    };
+    dialog.addEventListener('close', () => dialog.removeAttribute('data-closing'));
+    // Esc: animate out instead of vanishing. (If the browser won't let this be
+    // cancelled, it closes at once and the listener above tidies up.)
+    dialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      close();
+    });
+
+    // The dialog has no padding, so a click that lands on it directly is on the backdrop.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog || (e.target as Element).closest('[data-feedback-close]')) close();
+    });
+
+    note.addEventListener('input', updateCount);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = note.value.trim();
+      if (!text) return;
+      setState('sending');
+      try {
+        const res = await fetch('/api/feedback', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ note: text }),
+        });
+        if (res.status === 429) {
+          setState('error', 'That’s a lot of notes from one place. Try again in an hour.');
+          return;
+        }
+        if (!res.ok) throw new Error(String(res.status));
+        note.value = '';
+        updateCount();
+        setState('sent');
+      } catch {
+        setState('error', 'That didn’t go through. Try again in a moment.');
+      }
+    });
+  }
+</script>
+
+<style>
+  .dialog {
+    width: var(--dialog-width);
+    max-width: calc(100vw - 2 * var(--pad-page-x));
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    overflow: visible;
+  }
+  .dialog::backdrop {
+    background: var(--scrim);
+    backdrop-filter: blur(3px);
+  }
+
+  /* Opens from 96% about the centre; closes faster than it opens. */
+  .dialog[open] {
+    animation: dialog-in var(--d-modal-in) var(--ease-out);
+  }
+  .dialog[open]::backdrop {
+    animation: dialog-fade-in var(--d-modal-in) var(--ease-out);
+  }
+  .dialog[data-closing] {
+    animation: dialog-out var(--d-modal-out) var(--ease-out) forwards;
+  }
+  .dialog[data-closing]::backdrop {
+    animation: dialog-fade-out var(--d-modal-out) var(--ease-out) forwards;
+  }
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+  @keyframes dialog-out {
+    to {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+  @keyframes dialog-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes dialog-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-7);
+    padding: var(--s-10) var(--s-11) var(--s-9);
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--r-dialog);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--s-6);
+  }
+  .titles {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-tight);
+  }
+  .title {
+    font: var(--t-callout);
+    letter-spacing: var(--track-callout);
+  }
+  .sub {
+    font: var(--t-meta);
+    color: var(--ink-muted);
+  }
+  .x {
+    padding: 2px var(--s-1);
+    font: var(--t-close);
+    color: var(--ink-faint);
+    transition:
+      color var(--d-color),
+      transform var(--d-press) var(--ease-out);
+  }
+  .x:hover {
+    color: var(--ink);
+  }
+  .x:active {
+    transform: scale(0.97);
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-6);
+  }
+  .form[hidden] {
+    display: none;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-tight);
+  }
+  .field-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .count {
+    font: var(--t-mono-label);
+    color: var(--ink-muted);
+  }
+  textarea {
+    min-height: var(--field-height);
+    padding: var(--s-4);
+    font: var(--t-field);
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-lg);
+    resize: vertical;
+    outline: none;
+    transition: border-color var(--d-color);
+  }
+  textarea:focus {
+    border-color: var(--accent-focus);
+  }
+
+  .error {
+    font: var(--t-meta);
+    color: var(--accent);
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .send {
+    padding: var(--s-4) var(--s-6);
+    font: var(--t-mono-cta);
+    color: var(--paper-raised);
+    background: var(--accent);
+    border-radius: var(--r-md);
+    transition:
+      background var(--d-color),
+      transform var(--d-press) var(--ease-out);
+  }
+  .send:hover {
+    background: var(--accent-hover);
+  }
+  /* Touch fires hover on tap and leaves it stuck; lift for real pointers only. */
+  @media (hover: hover) and (pointer: fine) {
+    .send:hover {
+      transform: translateY(-1px);
+    }
+  }
+  .send:active {
+    transform: scale(0.97);
+  }
+  .send:disabled {
+    cursor: progress;
+    opacity: 0.7;
+    transform: none;
+  }
+
+  .fine {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-tight);
+    padding-top: var(--gap-head);
+    border-top: 1px solid var(--rule-soft);
+  }
+  .fine p {
+    max-width: var(--measure-note);
+    font: var(--t-mono-caption);
+    color: var(--ink-muted);
+  }
+  .source {
+    align-self: flex-start;
+    padding-bottom: 3px;
+    font: var(--t-mono-nav);
+    color: var(--ink-body);
+    border-bottom: 1px solid var(--border-strong);
+    transition:
+      color var(--d-color),
+      border-color var(--d-color);
+  }
+  .source:hover {
+    color: var(--ink);
+    border-color: var(--ink-faint);
+  }
+
+  .done {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--s-4);
+    padding: var(--s-1) 0 var(--s-2);
+  }
+  .done[hidden] {
+    display: none;
+  }
+  .done-title {
+    font: var(--t-confirm);
+    letter-spacing: var(--track-confirm);
+    color: var(--accent);
+  }
+  .done-body {
+    max-width: var(--measure-note);
+    font: var(--t-field);
+    color: var(--ink-muted);
+  }
+  .close {
+    padding: var(--s-3) var(--s-4);
+    font: var(--t-mono-small);
+    color: var(--ink-body);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-sm);
+    transition:
+      border-color var(--d-color),
+      transform var(--d-press) var(--ease-out);
+  }
+  .close:hover {
+    border-color: var(--ink-decorative);
+  }
+  .close:active {
+    transform: scale(0.97);
+  }
+
+  /* The thank-you lines arrive one after another. */
+  .done > * {
+    animation: dialog-done var(--d-confirm) var(--ease-out) backwards;
+  }
+  .done > :nth-child(2) {
+    animation-delay: var(--stagger);
+  }
+  .done > :nth-child(3) {
+    animation-delay: calc(2 * var(--stagger));
+  }
+  @keyframes dialog-done {
+    from {
+      opacity: 0;
+      transform: translateY(var(--s-2));
+    }
+  }
+
+  /* Reduced motion: keep the fades, drop the scale and rise. */
+  @media (prefers-reduced-motion: reduce) {
+    .dialog[open] {
+      animation-name: dialog-fade-in;
+    }
+    .dialog[data-closing] {
+      animation-name: dialog-fade-out;
+    }
+    .done > * {
+      animation-name: dialog-fade-in;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .card {
+      padding: var(--s-9) var(--s-6) var(--s-8);
+    }
+  }
+</style>

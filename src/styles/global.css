@@ -1,0 +1,150 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-size-adjust: 100%;
+}
+
+/* Smooth for in-page jumps only. Armed after load (BaseLayout), so landing on
+   /#work jumps straight there instead of animating — or, in dev, stalling —
+   down the page. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-smooth-scroll] {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  font: var(--t-body);
+}
+
+h1,
+h2,
+h3,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ul,
+ol {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: var(--weight-regular);
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+p,
+li,
+figcaption {
+  text-wrap: pretty;
+}
+
+strong {
+  font-weight: inherit;
+  color: var(--ink);
+}
+
+::selection {
+  background: var(--accent-select);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-xs);
+}
+
+/* Inline link: --ink with a faint underline, both move to --accent on hover.
+   Shared by TextLink and links inside content strings. */
+.text-link {
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink-line);
+  transition:
+    color var(--d-border),
+    border-color var(--d-border);
+}
+.text-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Load-in: fade and rise 12px, staggered with --delay. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.rise {
+  animation: rise var(--d-enter-alt) var(--ease-out) var(--delay, 0s) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
+/* Set in BaseLayout's head when the page opens at an anchor or on back. */
+[data-no-rise] .rise {
+  animation: none;
+}
+
+/* Scroll reveal: the same fade and rise, the first time a [data-reveal] block
+   scrolls into view. Blocks are only hidden once BaseLayout's head script has
+   set [data-reveal-on]; it doesn't under reduced motion or on anchor/back. */
+[data-reveal-on] [data-reveal]:not([data-revealed]) {
+  opacity: 0;
+}
+[data-reveal-on] [data-revealed] {
+  animation: rise var(--d-reveal) var(--ease-out) var(--delay, 0s) both;
+}
+
+@media (min-width: 900px) {
+  .only-mobile {
+    display: none !important;
+  }
+}
+@media (max-width: 899px) {
+  .only-desktop {
+    display: none !important;
+  }
+}

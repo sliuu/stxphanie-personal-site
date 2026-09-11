@@ -1,0 +1,123 @@
+---
+interface Props {
+  href?: string; // omit to render a <button>
+  variant?: 'primary' | 'ghost' | 'icon';
+  tone?: 'accent' | 'muted' | 'solid' | 'outline'; // icon buttons only
+  size?: 'sm' | 'lg'; // icon buttons only: 34px nav, 46px contact
+  label?: string; // accessible name, and the tooltip on icon buttons
+  feedback?: boolean; // opens the anonymous feedback dialog
+}
+
+const { href, variant = 'primary', tone = 'muted', size = 'sm', label, feedback = false } = Astro.props;
+const cls = ['btn', variant, variant === 'icon' && [tone, size]];
+const title = variant === 'icon' ? label : undefined;
+---
+
+{
+  href ? (
+    <a class:list={cls} href={href} aria-label={label} title={title}>
+      <slot />
+    </a>
+  ) : (
+    <button class:list={cls} type="button" aria-label={label} title={title} data-feedback-open={feedback || undefined}>
+      <slot />
+    </button>
+  )
+}
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    transition:
+      color var(--d-color),
+      background var(--d-color),
+      border-color var(--d-color),
+      transform var(--d-press) var(--ease-out);
+  }
+
+  .primary {
+    align-self: flex-start;
+    padding: var(--s-3) var(--s-4);
+    font: var(--t-mono-button);
+    color: var(--paper);
+    background: var(--accent);
+    border-radius: var(--r-sm);
+  }
+  .primary:hover {
+    background: var(--accent-press);
+  }
+
+  .ghost {
+    height: var(--control-sm);
+    padding: 0 var(--s-3);
+    border-radius: var(--r-md);
+    font: var(--t-mono-nav);
+    letter-spacing: var(--track-eyebrow);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .ghost:hover {
+    color: var(--ink);
+    background: var(--hover-wash-strong);
+  }
+
+  .sm {
+    width: var(--control-sm);
+    height: var(--control-sm);
+    border-radius: var(--r-md);
+  }
+  .lg {
+    width: var(--control-lg);
+    height: var(--control-lg);
+    border-radius: var(--r-sm);
+  }
+
+  .muted {
+    color: var(--ink-muted);
+  }
+  .muted:hover {
+    color: var(--ink);
+    background: var(--hover-wash-strong);
+  }
+
+  .accent {
+    color: var(--accent);
+    border: 1px solid var(--accent-line-soft);
+  }
+  .accent:hover {
+    color: var(--paper);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .solid {
+    color: var(--paper-raised);
+    background: var(--ink);
+  }
+  .solid:hover {
+    background: var(--accent);
+  }
+  /* Touch fires hover on tap and leaves it stuck, so the lift is for real
+     pointers only. */
+  @media (hover: hover) and (pointer: fine) {
+    .solid:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .outline {
+    color: var(--ink-body);
+    border: 1px solid var(--rule);
+  }
+  .outline:hover {
+    color: var(--ink);
+    border-color: var(--ink-decorative);
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+  }
+</style>

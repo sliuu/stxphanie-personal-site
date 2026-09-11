@@ -1,0 +1,83 @@
+---
+// Pinned under 900px in place of the contents rail. CaseStudyLayout's
+// scroll-spy writes the current section and progress into it.
+import { site } from '../data/site';
+
+interface Props {
+  sections: { id: string; index: string; title: string }[];
+}
+
+const { sections } = Astro.props;
+const first = sections[0];
+---
+
+<div class="strip only-mobile" data-strip>
+  <div class="top">
+    <a class="wordmark" href="/">{site.name}</a>
+    <a class="resume" href={site.resumeHref}>Resume</a>
+  </div>
+  <div class="current" aria-hidden="true">
+    <span class="label" data-strip-label>{first ? `${first.index}  ${first.title}` : ''}</span>
+    <span class="count" data-strip-count>1 / {sections.length}</span>
+  </div>
+  <div class="track" aria-hidden="true"><div class="bar" data-strip-bar></div></div>
+</div>
+
+<style>
+  .strip {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--pad-nav-top) var(--pad-page-x) var(--s-4);
+  }
+  .wordmark,
+  .resume {
+    font: var(--t-mono-nav);
+    letter-spacing: var(--track-eyebrow);
+    text-transform: uppercase;
+  }
+  .wordmark {
+    color: var(--ink);
+  }
+  .resume {
+    color: var(--ink-muted);
+  }
+  .current {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    padding: 0 var(--pad-page-x) var(--s-3);
+    font: var(--t-mono-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+  }
+  .label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre;
+    color: var(--ink-muted);
+  }
+  .count {
+    flex: none;
+    color: var(--ink-faint);
+  }
+  .track {
+    height: 2px;
+    background: var(--border);
+  }
+  .bar {
+    height: 100%;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+</style>

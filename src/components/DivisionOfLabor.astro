@@ -1,0 +1,140 @@
+---
+// Two-sided diagram with an exchange band between the sides.
+import Eyebrow from './Eyebrow.astro';
+import { inline } from '../lib/text';
+
+interface Side {
+  label: string;
+  role: string;
+  items: string[];
+}
+
+interface Props {
+  left: Side;
+  right: Side;
+  exchange: { toLeft: string; toRight: string };
+  caption?: string;
+}
+
+const { left, right, exchange, caption } = Astro.props;
+---
+
+<figure class="diagram">
+  <div class="card">
+    {
+      [left, right].map((side, i) => (
+        <div class="side" style={`order: ${i * 2}`}>
+          <Eyebrow size="label">{side.label}</Eyebrow>
+          <p class="role">{side.role}</p>
+          <ul class="items">
+            {side.items.map((item) => (
+              <li>
+                <span class="mark" aria-hidden="true">
+                  —
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+    <div class="band">
+      <p><span class="arrow to-left" aria-hidden="true">←</span><span set:html={inline(exchange.toLeft)} /></p>
+      <p><span set:html={inline(exchange.toRight)} /><span class="arrow to-right" aria-hidden="true">→</span></p>
+    </div>
+  </div>
+  {caption && <figcaption set:html={inline(caption)} />}
+</figure>
+
+<style>
+  .diagram {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-media);
+  }
+  .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--diagram-band) minmax(0, 1fr);
+    align-items: stretch;
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--r-media);
+  }
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-5);
+    padding: var(--s-8) var(--pad-inset);
+  }
+  .role {
+    font: var(--t-diagram);
+    letter-spacing: var(--track-diagram);
+    color: var(--ink);
+  }
+  .items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-tight);
+  }
+  .items li {
+    display: flex;
+    gap: var(--s-3);
+    font: var(--t-small);
+    color: var(--ink-body);
+  }
+  .mark {
+    flex: none;
+    color: var(--accent);
+  }
+
+  .band {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--s-8);
+    padding: var(--s-8) var(--s-3);
+    background: var(--paper);
+    border-inline: 1px solid var(--rule-soft);
+  }
+  .band p {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: var(--pad-rail-item);
+    font: var(--t-mono-note);
+    letter-spacing: var(--track-exchange);
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--ink-muted);
+  }
+  .arrow {
+    display: inline-block;
+    font: var(--t-mono-small);
+    color: var(--accent);
+  }
+
+  figcaption {
+    font: var(--t-mono-caption);
+    color: var(--ink-faint);
+  }
+
+  /* Stacked: left side on top, so the arrows turn to point up and down. */
+  @media (max-width: 899px) {
+    .card {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .band {
+      flex-direction: row;
+      justify-content: space-around;
+      gap: var(--s-5);
+      padding: var(--s-5) var(--s-3);
+      border-inline: 0;
+      border-block: 1px solid var(--rule-soft);
+    }
+    .arrow {
+      transform: rotate(90deg);
+    }
+  }
+</style>

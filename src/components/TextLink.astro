@@ -1,0 +1,20 @@
+---
+// Inline link: --ink with a faint underline, both move to --accent on hover.
+interface Props {
+  href: string;
+  external?: boolean; // ↗ instead of →
+  mono?: boolean; // the "read the case study →" treatment
+}
+
+const { href, external = false, mono = false } = Astro.props;
+---
+
+<a class:list={['text-link', { mono }]} href={href}><slot />{external ? ' ↗' : ' →'}</a>
+
+<style>
+  .mono {
+    align-self: flex-start;
+    padding-bottom: var(--s-1);
+    font: var(--t-mono-button);
+  }
+</style>

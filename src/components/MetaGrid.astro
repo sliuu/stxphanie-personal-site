@@ -1,0 +1,42 @@
+---
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  items: { label: string; value: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<dl class="meta">
+  {
+    items.map((item) => (
+      <div class="item">
+        <Eyebrow as="dt" size="label">
+          {item.label}
+        </Eyebrow>
+        <dd>{item.value}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--pad-inset);
+    row-gap: var(--s-7);
+    padding: var(--s-7) 0;
+    border-block: 1px solid var(--rule);
+  }
+  .item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pad-rail-item);
+  }
+  dd {
+    font: var(--t-meta);
+    color: var(--ink);
+  }
+</style>

@@ -1,0 +1,109 @@
+---
+// Headline lines rise in one after the other; the slot (the career list)
+// sits bottom-aligned beside it and rises last.
+interface Props {
+  greeting: string;
+  lead: string;
+  roles: string[]; // the accent word; click to cycle
+}
+
+const { greeting, lead, roles } = Astro.props;
+
+const START = 0.35;
+const STEP = 0.15;
+const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
+---
+
+<section class="hero">
+  <h1 class="headline">
+    <span class="line rise" style={delay(0)}>{greeting}</span>
+    <span class="line rise" style={delay(1)}>
+      {lead}{' '}
+      <button class="role" type="button" data-roles={JSON.stringify(roles)} aria-live="polite">
+        <span class="role-text">{roles[0]}</span>
+      </button>.
+    </span>
+  </h1>
+  <div class="aside rise" style="--delay: 0.7s">
+    <slot />
+  </div>
+</section>
+
+<script>
+  // Fade the word out, swap it, fade it back in. Opacity only, so it stays
+  // under reduced motion.
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-roles]')) {
+    const text = button.querySelector<HTMLElement>('.role-text');
+    if (!text) continue;
+    const roles: string[] = JSON.parse(button.dataset.roles ?? '[]');
+    let i = 0;
+    let timer: number | undefined;
+
+    const swap = () => {
+      text.textContent = roles[i];
+      button.classList.remove('is-out');
+      timer = undefined;
+    };
+
+    button.addEventListener('click', () => {
+      i = (i + 1) % roles.length;
+      if (timer) return; // mid-fade: the next word lands when this one does
+      button.classList.add('is-out');
+      const ms = parseFloat(getComputedStyle(text).transitionDuration) * 1000;
+      timer = window.setTimeout(swap, ms);
+    });
+  }
+</script>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1.35fr 0.65fr;
+    gap: var(--gap-hero);
+    align-items: end;
+    padding: var(--pad-hero-top) var(--pad-page-x) var(--pad-hero-bottom);
+  }
+  .headline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    margin-bottom: var(--s-6);
+    font: var(--t-display);
+    letter-spacing: var(--track-display);
+    color: var(--ink);
+  }
+  .role {
+    padding-bottom: var(--s-1);
+    margin-bottom: calc(-1 * var(--s-1));
+    text-align: left;
+    color: var(--accent);
+    border-bottom: 1px dashed var(--accent-dash);
+    transition:
+      color var(--d-border),
+      border-color var(--d-border),
+      transform var(--d-press) var(--ease-out);
+  }
+  .role:hover {
+    color: var(--accent-hover);
+    border-color: var(--accent);
+  }
+  .role:active {
+    transform: scale(0.97);
+  }
+  /* Only the word fades; the dashed underline stays put. */
+  .role-text {
+    transition: opacity var(--d-swap) var(--ease-out);
+  }
+  .role.is-out .role-text {
+    opacity: 0;
+  }
+
+  @media (max-width: 899px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .headline {
+      margin-bottom: 0;
+    }
+  }
+</style>

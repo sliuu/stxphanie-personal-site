@@ -1,0 +1,31 @@
+---
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<aside class="callout">
+  <Eyebrow size="label">{label}</Eyebrow>
+  <p class="text"><slot /></p>
+</aside>
+
+<style>
+  .callout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    padding: var(--pad-inset) var(--s-9);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  }
+  .text {
+    font: var(--t-callout);
+    letter-spacing: var(--track-callout);
+    color: var(--ink);
+  }
+</style>

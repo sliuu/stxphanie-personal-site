@@ -1,0 +1,85 @@
+---
+import '@fontsource/gabarito/400.css';
+import '@fontsource/gabarito/500.css';
+import '@fontsource-variable/geist-mono';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import FeedbackDialog from '../components/FeedbackDialog.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const fullTitle = title ? `${title} — ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <script is:inline>
+      // Landing on an anchor (← All work goes to /#work) or coming back: skip
+      // the load-in so the content is already there. Otherwise, unless motion
+      // is reduced, arm the scroll reveal — here, before first paint, so
+      // nothing flashes, and without JS nothing is ever hidden.
+      {
+        const nav = performance.getEntriesByType('navigation')[0];
+        const root = document.documentElement;
+        if (location.hash || nav?.type === 'back_forward') root.dataset.noRise = '';
+        else if (!matchMedia('(prefers-reduced-motion: reduce)').matches) root.dataset.revealOn = '';
+      }
+    </script>
+  </head>
+  <body>
+    <slot />
+    <FeedbackDialog />
+  </body>
+</html>
+
+<script>
+  // Smooth scrolling waits until the browser has done its own jump to the
+  // URL's #anchor; see global.css.
+  addEventListener('load', () => (document.documentElement.dataset.smoothScroll = ''), { once: true });
+</script>
+
+<script>
+  // Reveal each [data-reveal] block once its top is 10% up from the bottom of
+  // the viewport. Blocks already on screen at load (tall screens) come in with
+  // the case-study list's load-in rather than ahead of the hero.
+  const LOAD_DELAY = 0.7; // s — the case-study list's --delay in index.astro
+  const STAGGER = 0.05; // s — between blocks revealed together at load
+
+  if ('revealOn' in document.documentElement.dataset) {
+    let atLoad = true;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        let n = 0;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const block = entry.target as HTMLElement;
+          if (atLoad) block.style.setProperty('--delay', `${LOAD_DELAY + STAGGER * n++}s`);
+          block.dataset.revealed = '';
+          observer.unobserve(block);
+        }
+        atLoad = false;
+      },
+      { rootMargin: '0px 0px -10% 0px' },
+    );
+    for (const block of document.querySelectorAll('[data-reveal]')) observer.observe(block);
+  }
+</script>

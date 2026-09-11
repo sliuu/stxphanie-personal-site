@@ -1,0 +1,149 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
+import Blocks from '../../components/Blocks.astro';
+import Button from '../../components/Button.astro';
+import Eyebrow from '../../components/Eyebrow.astro';
+import Figure from '../../components/Figure.astro';
+import MetaGrid from '../../components/MetaGrid.astro';
+import Section from '../../components/Section.astro';
+import { pad, slugify } from '../../lib/text';
+
+export async function getStaticPaths() {
+  const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+  return work.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, next: work[(i + 1) % work.length] },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+  next: CollectionEntry<'work'>;
+}
+
+const { entry, next } = Astro.props;
+const d = entry.data;
+
+const sections = d.sections.map((s, i) => ({
+  ...s,
+  id: s.id ?? slugify(s.title),
+  index: pad(i + 1),
+}));
+
+const meta = [
+  { label: 'Team', value: d.team },
+  { label: 'Role', value: d.role },
+  { label: 'Timeline', value: d.timeline },
+  { label: 'Tools', value: d.tools },
+];
+---
+
+<CaseStudyLayout
+  title={d.title}
+  description={d.dek}
+  sections={sections}
+  prototypeHref={d.prototypeHref}
+  prototypeNote={d.prototypeNote}
+>
+  <header class="intro">
+    <a class="back only-mobile" href="/#work">← All work</a>
+    <h1>{d.title}</h1>
+    <p class="dek">{d.dek}</p>
+    <MetaGrid items={meta} />
+    {
+      d.prototypeHref && (
+        <div class="only-mobile">
+          <Button href={d.prototypeHref}>Open the prototype ↗</Button>
+        </div>
+      )
+    }
+    {d.confidentialityNote && <p class="note">{d.confidentialityNote}</p>}
+  </header>
+
+  {d.hero && <Figure {...d.hero} loading="eager" />}
+
+  {
+    sections.map((s) => (
+      <Section id={s.id} index={s.index} title={s.title} lede={s.lede}>
+        <Blocks blocks={s.blocks} />
+      </Section>
+    ))
+  }
+
+  <nav class="pager" aria-label="More work">
+    <a class="all" href="/#work">← All work</a>
+    {
+      next.id !== entry.id && (
+        <a class="next" href={`/work/${next.id}`}>
+          <Eyebrow as="span" size="label">
+            Next
+          </Eyebrow>
+          <span class="next-title">{next.data.title} →</span>
+        </a>
+      )
+    }
+  </nav>
+</CaseStudyLayout>
+
+<style>
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-6);
+  }
+  .back {
+    font: var(--t-mono-nav);
+    letter-spacing: var(--track-eyebrow);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  h1 {
+    font: var(--t-hero);
+    letter-spacing: var(--track-hero);
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .dek {
+    font: var(--t-subhead);
+    color: var(--ink-body);
+  }
+  .note {
+    font: var(--t-note);
+    color: var(--ink-muted);
+  }
+
+  .pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--s-6);
+    padding-top: var(--s-9);
+    border-top: 1px solid var(--rule);
+  }
+  .all {
+    font: var(--t-mono-rail);
+    color: var(--ink-muted);
+    transition: color var(--d-color);
+  }
+  .all:hover {
+    color: var(--ink);
+  }
+  .next {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--s-3);
+    text-align: right;
+    color: var(--ink);
+    transition: color var(--d-color);
+  }
+  .next-title {
+    font: var(--t-lede);
+    letter-spacing: var(--track-lede);
+  }
+  .next:hover {
+    color: var(--accent);
+  }
+</style>
