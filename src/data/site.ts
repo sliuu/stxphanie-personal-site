@@ -32,15 +32,18 @@ export const project = {
   statement: 'Habits that get built by doing a thing over time, not every day.',
   emphasis: 'over time',
   body: 'Built a habit tracker that only asks whether you showed up. No hours, no finished projects, no streak to break, no to-do lists. Simple and satisfying by design. Built with Next.js, React, TypeScript, Tailwind and Supabase. Hosted on Vercel, source on GitHub.',
-  liveHref: 'https://baby-steps.stxphanie.com',
+  // The demo, not the app: the app itself is behind a sign-in wall, and a link
+  // that opens a login screen tells a stranger nothing about the work.
+  liveHref: 'https://baby-steps.stxphanie.com/demo',
   liveLabel: 'Baby Steps',
   // The accordion row reads "BABY STEPS · 2026"; the note sits beside the link.
   year: '2026',
   note: 'Built & shipped solo',
+  // Regenerate with `npm run shoot:demo` whenever Baby Steps changes — the
+  // accordion crops this to a top-left band, so the framing has to stay put.
   image: {
-    src: 'assets/baby-steps/app-screenshot.png', // pending
-    alt: 'The Baby Steps habit tracker',
-    ratio: '4/3',
+    src: 'assets/baby-steps/app-screenshot.png',
+    alt: 'The Baby Steps habit tracker, showing a month of stickers',
   },
 };
 

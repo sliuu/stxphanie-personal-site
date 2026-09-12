@@ -9,6 +9,7 @@ npm install
 npm run dev       # http://localhost:4321
 npm run build     # astro check + astro build
 npm run preview
+npm run shoot:demo  # re-shoot the Baby Steps thumbnail
 ```
 
 ## Layout
@@ -57,6 +58,16 @@ Images are optimised at build time; `.mp4`/`.webm` play muted on loop. A path wi
 file yet shows a dashed placeholder in dev and is left out of production builds (the
 build logs a warning), so you can write first and drop files in later.
 
+## The Baby Steps thumbnail
+
+`npm run shoot:demo` drives headless Chrome to <https://baby-steps.stxphanie.com/demo>,
+removes the "This is a demo." banner so the capture starts at the app's real top edge,
+and writes `src/assets/baby-steps/app-screenshot.png` at a pinned 1440x900 @2x. Run it
+whenever Baby Steps changes; the framing stays identical, so only the app moves.
+
+It refuses to write if it cannot find the banner, rather than shipping a thumbnail with
+one on it — if the banner's copy changes, update `BANNER_TEXT` in `scripts/shoot-demo.mjs`.
+
 ## Feedback endpoint
 
 `POST /api/feedback` with `{ "note": "…" }`. Notes are appended to a Redis list named
@@ -77,9 +88,6 @@ variables, deploy. Point `stxphanie.com` at it under Settings → Domains.
 
 ## To do
 
-- Real links in `src/data/site.ts`: résumé, LinkedIn, repo.
-- `prototypeHref` for each case study.
-- Missing assets: the Baby Steps screenshot, plus anything else that shows a placeholder in dev.
 - Replace the two outdated YouTube screenshots (`prototype-editor`, `prototype-preview`).
 - The feedback dialog promises weekly batched delivery; that's not built yet — for now,
   read the list in Upstash.
