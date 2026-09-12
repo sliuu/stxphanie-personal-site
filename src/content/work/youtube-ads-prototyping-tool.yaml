@@ -27,10 +27,10 @@ confidentialityNote: >-
   Note: These screens are my own redesigns. Copy, labels, and advanced settings were rewritten or invented to protect Google's confidential information — some deliberately unrelated to the real tool.
 
 hero:
-  src: assets/youtube-ads-prototyping-tool/walkthrough.mp4
-  alt: Walkthrough of the redesigned prototyping tool
+  src: assets/youtube-ads-prototyping-tool/prototype-editor.png
+  alt: The redesigned prototyping tool editor
   caption: >-
-    The redesigned YouTube ads prototyping tool, stepping through creating a new project, adding elements, linking actions, custom code and CSS themes, and editing components.
+    The redesigned editor, and the screen a designer spends nearly all of their time in.
 
 sections:
   - title: The problem

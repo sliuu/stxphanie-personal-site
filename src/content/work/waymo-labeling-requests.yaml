@@ -24,10 +24,10 @@ confidentialityNote: >-
   Note: These screens are my own redesigns. Copy, labels, and advanced settings were rewritten or invented to protect Waymo's confidential information — some deliberately unrelated to the real tool.
 
 hero:
-  src: assets/waymo-labeling-requests/request-flow-walkthrough.mp4 # pending
-  alt: The redesigned request flow, end to end
-  ratio: 16/10
-  caption: The redesigned request flow, end to end.
+  src: assets/waymo-labeling-requests/wizard-step-1-basics.png
+  alt: Step one of the redesigned labeling request wizard
+  caption: >-
+    The front door of the redesigned request flow: one of seven steps, with advanced settings behind a toggle.
 
 sections:
   - title: The problem
