@@ -1,4 +1,5 @@
 ---
+import { isExternal } from '../lib/text';
 interface Props {
   href?: string; // omit to render a <button>
   variant?: 'primary' | 'ghost' | 'icon';
@@ -9,13 +10,21 @@ interface Props {
 }
 
 const { href, variant = 'primary', tone = 'muted', size = 'sm', label, feedback = false } = Astro.props;
+const ext = href ? isExternal(href) : false;
 const cls = ['btn', variant, variant === 'icon' && [tone, size]];
 const title = variant === 'icon' ? label : undefined;
 ---
 
 {
   href ? (
-    <a class:list={cls} href={href} aria-label={label} title={title}>
+    <a
+      class:list={cls}
+      href={href}
+      aria-label={label}
+      title={title}
+      target={ext ? '_blank' : undefined}
+      rel={ext ? 'noopener noreferrer' : undefined}
+    >
       <slot />
     </a>
   ) : (

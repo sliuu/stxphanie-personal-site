@@ -1,3 +1,10 @@
+/**
+ * Links that leave the site, plus the resume PDF — a document rather than a
+ * page, so it should not replace the site in the tab either. mailto: and tel:
+ * hand off to another app and never open a tab, so they are not external here.
+ */
+export const isExternal = (href: string) => /^https?:\/\//.test(href) || href.endsWith('.pdf');
+
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -5,7 +12,11 @@ const escapeHtml = (s: string) =>
 export function inline(text: string): string {
   return escapeHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a class="text-link" href="$2">$1</a>')
+    .replace(
+      /\[([^\]]+)\]\(([^)\s]+)\)/g,
+      (_, label, href) =>
+        `<a class="text-link" href="${href}"${isExternal(href) ? ' target="_blank" rel="noopener noreferrer"' : ''}>${label}</a>`,
+    )
     .replace(/\n/g, '<br>');
 }
 

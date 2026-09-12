@@ -1,4 +1,5 @@
 ---
+import { isExternal } from '../lib/text';
 // Inline link: --ink with a faint underline, both move to --accent on hover.
 interface Props {
   href: string;
@@ -7,9 +8,17 @@ interface Props {
 }
 
 const { href, external = false, mono = false } = Astro.props;
+// `external` only picks the glyph; whether it opens a tab is decided by the href.
+const ext = isExternal(href);
 ---
 
-<a class:list={['text-link', { mono }]} href={href}><slot />{external ? ' ↗' : ' →'}</a>
+<a
+  class:list={['text-link', { mono }]}
+  href={href}
+  target={ext ? '_blank' : undefined}
+  rel={ext ? 'noopener noreferrer' : undefined}
+  ><slot />{external ? ' ↗' : ' →'}</a
+>
 
 <style>
   .mono {
