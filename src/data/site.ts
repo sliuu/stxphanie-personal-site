@@ -15,9 +15,15 @@ export const site = {
 
 export const hero = {
   greeting: 'Hi! I’m Stephanie.',
-  lead: 'I’m a product designer who',
-  // Click the accent word to cycle.
-  roles: ['engineers', 'ships her own work', 'asks a lot of questions'],
+  lead: 'I’m a',
+  // Click the accent word to cycle. It sits mid-sentence now, so Hero animates
+  // its width on each swap — keep these close in length and they stay tidy.
+  roles: ['design engineer', 'UX engineer', 'product designer'],
+  // The gap in "San Francisco" is an escaped U+00A0, not a plain space.
+  // The role word changes width on every click, which moves the wrap point,
+  // and a plain space lets the line break as "San / Francisco." on some of
+  // the three. Escaped rather than a literal character so it stays visible.
+  trail: 'based in San\u00A0Francisco',
 };
 
 export const career = [

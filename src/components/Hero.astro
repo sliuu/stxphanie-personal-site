@@ -5,9 +5,13 @@ interface Props {
   greeting: string;
   lead: string;
   roles: string[]; // the accent word; click to cycle
+  trail?: string; // rest of the sentence, after the accent word
 }
 
-const { greeting, lead, roles } = Astro.props;
+const { greeting, lead, roles, trail } = Astro.props;
+
+// The full stop rides along, so the sentence closes with or without a trail.
+const tail = trail ? ` ${trail}.` : '.';
 
 const START = 0.35;
 const STEP = 0.15;
@@ -21,7 +25,7 @@ const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
       {lead}{' '}
       <button class="role" type="button" data-roles={JSON.stringify(roles)} aria-live="polite">
         <span class="role-text">{roles[0]}</span>
-      </button>.
+      </button>{tail}
     </span>
   </h1>
   <div class="aside rise" style="--delay: 0.7s">
@@ -30,14 +34,31 @@ const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
 </section>
 
 <script>
-  // Fade the word out, swap it, fade it back in. Opacity only, so it stays
-  // under reduced motion.
+  // Fade the word out, swap it, fade it back in. Opacity only, so the swap
+  // itself stays under reduced motion. The word sits mid-sentence, so the
+  // button's width is animated in step with the fade — otherwise the words
+  // after it snap sideways by the difference between two role names.
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-roles]')) {
     const text = button.querySelector<HTMLElement>('.role-text');
     if (!text) continue;
     const roles: string[] = JSON.parse(button.dataset.roles ?? '[]');
     let i = 0;
     let timer: number | undefined;
+
+    // Measured inside the button, so it inherits the display face at whatever
+    // the fluid size currently is, and absolute so it never widens what it is
+    // measuring. It's built and dropped inside this call rather than parked in
+    // the DOM: anything left in there is a second copy of the word inside the
+    // <h1>, which is what gets read out, crawled, and copied.
+    const widthOf = (word: string) => {
+      const ruler = document.createElement('span');
+      ruler.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;';
+      ruler.textContent = word;
+      button.append(ruler);
+      const width = ruler.getBoundingClientRect().width;
+      ruler.remove();
+      return width;
+    };
 
     const swap = () => {
       text.textContent = roles[i];
@@ -46,11 +67,24 @@ const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
     };
 
     button.addEventListener('click', () => {
+      // Width animates from a number, not from auto — pin the current one
+      // first, and flush it so the retarget below is a second, animated value.
+      if (!button.style.width) {
+        button.style.width = `${widthOf(roles[i])}px`;
+        void button.offsetWidth;
+      }
       i = (i + 1) % roles.length;
+      button.style.width = `${widthOf(roles[i])}px`; // retargets mid-fade too
       if (timer) return; // mid-fade: the next word lands when this one does
       button.classList.add('is-out');
       const ms = parseFloat(getComputedStyle(text).transitionDuration) * 1000;
       timer = window.setTimeout(swap, ms);
+    });
+
+    // --display-size is fluid, so a pinned px width goes stale on resize.
+    // Dropping it mid-fade would jump the word; the next click re-pins.
+    addEventListener('resize', () => {
+      if (!timer) button.style.width = '';
     });
   }
 </script>
@@ -73,14 +107,25 @@ const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
     color: var(--ink);
   }
   .role {
+    display: inline-block;
+    /* The width is pinned to the word's single-line width; let it wrap and
+       that measurement stops matching what's drawn. */
+    white-space: nowrap;
     padding-bottom: var(--s-1);
     margin-bottom: calc(-1 * var(--s-1));
+    /* The headline's -0.034em tracking closes the gap after the accent word,
+       so the next word sits against it. Margin rather than padding: padding
+       would drag the dashed underline out past the word with it. In em so it
+       holds its proportion across the fluid display size. */
+    margin-right: 0.06em;
+    /* Holds the word against the left edge while the width animates. */
     text-align: left;
     color: var(--accent);
     border-bottom: 1px dashed var(--accent-dash);
     transition:
       color var(--d-border),
       border-color var(--d-border),
+      width var(--d-swap) var(--ease-out),
       transform var(--d-press) var(--ease-out);
   }
   .role:hover {
@@ -96,6 +141,15 @@ const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
   }
   .role.is-out .role-text {
     opacity: 0;
+  }
+  /* The word still swaps; only the sideways travel of the trailing text goes.
+     global.css stops .rise but nothing else, so this rule is on its own. */
+  @media (prefers-reduced-motion: reduce) {
+    .role {
+      transition:
+        color var(--d-border),
+        border-color var(--d-border);
+    }
   }
 
   @media (max-width: 899px) {
