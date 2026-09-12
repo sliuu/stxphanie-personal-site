@@ -29,6 +29,9 @@
   --border:           #e2ded4;  /* media and card borders */
   --border-dashed:    #cfc9bb;  /* pending-asset placeholders */
   --border-strong:    #c9c3b5;  /* card hover border */
+  --flow-line:        #b3aa9a;  /* flow-chart connectors — darker than the
+                                   other line tokens on purpose: a 1px line
+                                   carrying an arrowhead needs to be findable */
 
   /* ---- Color: accent ---- */
   --accent:           #a3383a;  /* section ledes, links, primary button */

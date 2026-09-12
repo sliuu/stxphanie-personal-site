@@ -75,11 +75,9 @@ sections:
       - type: prose
         text: >-
           Charting the current process revealed the first problem before any interview did. Documentation pointed to several possible starting points, and each of those led to a different path through the request process. Multiple entry points, redundant documentation, internal vocabulary, and required steps that only applied to advanced users made the process painful for new users.
-      - type: figure
-        src: assets/waymo-labeling-requests/existing-process-flow-chart.png # pending
-        alt: Flow chart of the existing labeling request process
-        ratio: 16/7
-        caption: Flow chart of the existing labeling request process, showing many divergent entry points
+      - type: processFlow
+        caption: >-
+          The existing labeling request process. Four ways in, two decision points that change the path, and an unofficial escape hatch that required a labeling engineer.
       - type: prose
         text: >-
           The interviews turned up the finding that shaped everything after it. Most people weren't filing new requests at all. They wanted an existing request with one or two things changed — a different attribute, an extra question, a wider range. But the only route to those two fields ran through the entire form, and the form was long enough and opaque enough that they gave up and asked an engineer to make the change for them. The bottleneck wasn't the hard requests. It was the easy ones arriving through the same door.

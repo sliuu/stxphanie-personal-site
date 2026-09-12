@@ -6,6 +6,7 @@ import DashList from './DashList.astro';
 import DivisionOfLabor from './DivisionOfLabor.astro';
 import Eyebrow from './Eyebrow.astro';
 import Figure from './Figure.astro';
+import ProcessFlow from './ProcessFlow.astro';
 import PullQuote from './PullQuote.astro';
 import { inline } from '../lib/text';
 
@@ -61,6 +62,8 @@ const paragraphs = (text: string | string[]) => (Array.isArray(text) ? text : [t
         );
       case 'list':
         return <DashList items={block.items} variant={block.style} />;
+      case 'processFlow':
+        return <ProcessFlow caption={block.caption} />;
       case 'diagram':
         return (
           <DivisionOfLabor left={block.left} right={block.right} exchange={block.exchange} caption={block.caption} />

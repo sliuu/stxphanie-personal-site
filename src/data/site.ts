@@ -4,8 +4,9 @@ export const site = {
   name: 'Stephanie Liu', // nav wordmark (CSS sets the caps), tab title, footer
   description: 'Stephanie — a product designer who engineers. Case studies from Google and Waymo, and things I’ve made.',
   email: 'stxphanieliu@gmail.com',
-  // TODO: real destinations.
-  resumeHref: '#',
+  // Served from public/ rather than bundled, so the URL stays the same when the
+  // PDF is replaced and a shared link keeps working.
+  resumeHref: '/resume.pdf',
   linkedinHref: 'https://www.linkedin.com/in/stephanieliu14',
   githubHref: 'https://github.com/sliuu',
   repoHref: 'https://github.com/sliuu/stxphanie-personal-site',

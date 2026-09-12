@@ -28,6 +28,7 @@ const leafBlocks = [
     style: z.enum(['plain', 'ruled', 'large']).default('plain'),
     items: z.array(z.string()),
   }),
+  z.object({ type: z.literal('processFlow'), caption: z.string().optional() }),
   z.object({
     type: z.literal('diagram'),
     left: diagramSide,
