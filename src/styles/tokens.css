@@ -206,6 +206,7 @@
   --d-modal-out: 0.15s;  /* dialog close: faster than open */
   --d-confirm:   0.30s;  /* dialog sent state, per line */
   --stagger:     0.05s;  /* between lines of the sent state */
+  --d-shake:     0.40s;  /* feedback field head-shake on an empty send */
   --d-reveal:    0.75s;  /* scroll reveal: shorter than the load-in, so
                             fast scrolling doesn't wait on content */
 }

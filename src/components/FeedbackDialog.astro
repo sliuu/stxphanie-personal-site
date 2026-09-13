@@ -6,39 +6,42 @@ import { site } from '../data/site';
 
 const MAX = 600;
 const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/feedback.ts`;
+// Cate Hall, "Seek real feedback" — the argument this form is built on.
+const inspirationHref = 'https://usefulfictions.substack.com/i/140561314/seek-real-feedback';
 ---
 
 <dialog class="dialog" data-feedback data-state="idle" aria-labelledby="feedback-title">
   <div class="card">
     <div class="head">
-      <div class="titles">
-        <h2 class="title" id="feedback-title">Leave me anonymous feedback</h2>
-        <p class="sub">Nothing is recorded about who you are. Say the useful thing.</p>
+      <div class="titles" data-feedback-titles>
+        <h2 class="title" id="feedback-title">Leave me anonymous feedback!</h2>
+        <p class="sub">
+          Inspired by <a href={inspirationHref} target="_blank" rel="noopener noreferrer">Cate Hall</a>. People grow
+          through feedback, but knowing who sent it compromises both of us.
+        </p>
       </div>
       <button type="button" class="x" data-feedback-close aria-label="Close">✕</button>
     </div>
 
-    <form class="form" data-feedback-form>
+    <!-- novalidate: an empty send gets the nudge below, not the browser's bubble. -->
+    <form class="form" data-feedback-form novalidate>
       <div class="field">
         <div class="field-head">
           <label for="feedback-note"><Eyebrow as="span" size="label">Your note</Eyebrow></label>
           <span class="count" data-feedback-count>0/{MAX}</span>
+          <span class="nudge" data-feedback-nudge role="status"></span>
         </div>
-        <textarea id="feedback-note" name="note" maxlength={MAX} required placeholder="Be as blunt as you like."
-        ></textarea>
+        <textarea id="feedback-note" name="note" maxlength={MAX} required></textarea>
       </div>
 
       <p class="error" data-feedback-error role="alert" hidden></p>
 
       <div class="actions">
-        <button type="submit" class="send" data-feedback-send>send it →</button>
+        <button type="submit" class="primary" data-feedback-send>send it →</button>
       </div>
 
       <div class="fine">
-        <p>
-          No name, no email, no IP, no cookies. Notes arrive without a timestamp, batched and delivered to me once a
-          week, so nothing can be matched back to a visit.
-        </p>
+        <p>Anonymous: only the text of your note is saved. No name, no email, no IP.</p>
         <a class="source" href={sourceHref} target="_blank" rel="noopener noreferrer"
           >api/feedback.ts — the code that receives this ↗</a
         >
@@ -46,9 +49,12 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     </form>
 
     <div class="done" data-feedback-done hidden>
-      <p class="done-title">Got it — thank you.</p>
-      <p class="done-body">I read everything that comes through here, and I can't tell who sent it. That's the point.</p>
-      <button type="button" class="close" data-feedback-close>close</button>
+      <h2 class="done-title" tabindex="-1" data-feedback-done-title>Sent. Thank you.</h2>
+      <p class="done-body">I can't reply, since I don't know who you are, but much appreciated! :)</p>
+      <div class="done-actions">
+        <button type="button" class="secondary" data-feedback-again>send another</button>
+        <button type="button" class="primary" data-feedback-close>close</button>
+      </div>
     </div>
   </div>
 </dialog>
@@ -63,13 +69,41 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     const send = form.querySelector<HTMLButtonElement>('[data-feedback-send]')!;
     const error = form.querySelector<HTMLElement>('[data-feedback-error]')!;
     const done = dialog.querySelector<HTMLElement>('[data-feedback-done]')!;
+    const card = dialog.querySelector<HTMLElement>('.card')!;
+    const titles = dialog.querySelector<HTMLElement>('[data-feedback-titles]')!;
+    const doneTitle = done.querySelector<HTMLElement>('[data-feedback-done-title]')!;
+    const field = note.closest<HTMLElement>('.field')!;
+    const nudge = form.querySelector<HTMLElement>('[data-feedback-nudge]')!;
     const sendLabel = send.textContent;
+
+    // Sending an empty note: the field shakes its head and the counter's slot
+    // says so. One line per try, drier each time; the last one repeats.
+    const BLANK = ['that’s a blank page', 'still blank', 'even “meh” counts'];
+    let blanks = 0;
+    const clearNudge = () => {
+      field.removeAttribute('data-nudge');
+      nudge.textContent = '';
+      note.removeAttribute('aria-invalid');
+    };
+    const showNudge = () => {
+      nudge.textContent = BLANK[Math.min(blanks++, BLANK.length - 1)];
+      note.setAttribute('aria-invalid', 'true');
+      // Off, reflow, on: replays the shake when it's already showing.
+      field.removeAttribute('data-nudge');
+      void field.offsetWidth;
+      field.setAttribute('data-nudge', '');
+      note.focus();
+    };
 
     type State = 'idle' | 'sending' | 'sent' | 'error';
     const setState = (state: State, message = '') => {
       dialog.dataset.state = state;
       send.disabled = state === 'sending';
       send.textContent = state === 'sending' ? 'sending…' : sendLabel;
+      // Sent: hold the form's height, measured before it goes, so the card
+      // doesn't collapse around the shorter confirmation.
+      card.style.minHeight = state === 'sent' ? `${card.offsetHeight}px` : '';
+      titles.hidden = state === 'sent';
       form.hidden = state === 'sent';
       done.hidden = state !== 'sent';
       error.hidden = state !== 'error';
@@ -83,6 +117,8 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     document.addEventListener('click', (e) => {
       if (!(e.target as Element).closest('[data-feedback-open]')) return;
       if (dialog.dataset.state !== 'sending') setState('idle');
+      clearNudge();
+      blanks = 0;
       dialog.showModal();
       note.focus();
     });
@@ -110,12 +146,24 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
       if (e.target === dialog || (e.target as Element).closest('[data-feedback-close]')) close();
     });
 
-    note.addEventListener('input', updateCount);
+    done.querySelector('[data-feedback-again]')!.addEventListener('click', () => {
+      setState('idle');
+      blanks = 0;
+      note.focus();
+    });
+
+    note.addEventListener('input', () => {
+      updateCount();
+      if (field.hasAttribute('data-nudge')) clearNudge();
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const text = note.value.trim();
-      if (!text) return;
+      if (!text) {
+        showNudge();
+        return;
+      }
       setState('sending');
       try {
         const res = await fetch('/api/feedback', {
@@ -131,6 +179,8 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
         note.value = '';
         updateCount();
         setState('sent');
+        // The send button just vanished; land focus on the news instead.
+        doneTitle.focus();
       } catch {
         setState('error', 'That didn’t go through. Try again in a moment.');
       }
@@ -210,15 +260,33 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     flex-direction: column;
     gap: var(--gap-tight);
   }
+  .titles[hidden] {
+    display: none;
+  }
   .title {
     font: var(--t-callout);
     letter-spacing: var(--track-callout);
   }
   .sub {
+    max-width: var(--measure-note);
     font: var(--t-meta);
     color: var(--ink-muted);
   }
+  /* Underlined rather than coloured: it's a citation, not a call to action. */
+  .sub a {
+    color: var(--ink-body);
+    border-bottom: 1px solid var(--border-strong);
+    transition:
+      color var(--d-color),
+      border-color var(--d-color);
+  }
+  .sub a:hover {
+    color: var(--ink);
+    border-color: var(--ink-faint);
+  }
+  /* Pinned right, so it stays put when the titles hide in the sent state. */
   .x {
+    margin-left: auto;
     padding: 2px var(--s-1);
     font: var(--t-close);
     color: var(--ink-faint);
@@ -271,6 +339,33 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     border-color: var(--accent-focus);
   }
 
+  /* Empty send. The message takes the counter's slot and rises in like the
+     thank-you lines; the field shakes its head, a "no" that settles fast. */
+  .nudge {
+    font: var(--t-mono-label);
+    color: var(--accent);
+    animation: dialog-done var(--d-confirm) var(--ease-out);
+  }
+  .nudge:empty,
+  .field[data-nudge] .count {
+    display: none;
+  }
+  .field[data-nudge] textarea {
+    border-color: var(--accent);
+    animation: field-shake var(--d-shake) var(--ease-out);
+  }
+  @keyframes field-shake {
+    20% {
+      transform: translateX(calc(-1 * var(--s-1)));
+    }
+    45% {
+      transform: translateX(var(--s-1));
+    }
+    70% {
+      transform: translateX(calc(-0.5 * var(--s-1)));
+    }
+  }
+
   .error {
     font: var(--t-meta);
     color: var(--accent);
@@ -280,7 +375,7 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     display: flex;
     justify-content: flex-end;
   }
-  .send {
+  .primary {
     padding: var(--s-4) var(--s-6);
     font: var(--t-mono-cta);
     color: var(--paper-raised);
@@ -290,19 +385,19 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
       background var(--d-color),
       transform var(--d-press) var(--ease-out);
   }
-  .send:hover {
+  .primary:hover {
     background: var(--accent-hover);
   }
   /* Touch fires hover on tap and leaves it stuck; lift for real pointers only. */
   @media (hover: hover) and (pointer: fine) {
-    .send:hover {
+    .primary:hover {
       transform: translateY(-1px);
     }
   }
-  .send:active {
+  .primary:active {
     transform: scale(0.97);
   }
-  .send:disabled {
+  .primary:disabled {
     cursor: progress;
     opacity: 0.7;
     transform: none;
@@ -335,9 +430,12 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     border-color: var(--ink-faint);
   }
 
+  /* Fills the height the form left behind, content centred in it. */
   .done {
+    flex: 1;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: flex-start;
     gap: var(--s-4);
     padding: var(--s-1) 0 var(--s-2);
@@ -349,26 +447,34 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     font: var(--t-confirm);
     letter-spacing: var(--track-confirm);
     color: var(--accent);
+    /* Focused by script so it's announced; not a control, so no ring. */
+    outline: none;
   }
   .done-body {
     max-width: var(--measure-note);
     font: var(--t-field);
     color: var(--ink-muted);
   }
-  .close {
-    padding: var(--s-3) var(--s-4);
-    font: var(--t-mono-small);
+  .done-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
+  .secondary {
+    padding: var(--s-4) var(--s-5);
+    font: var(--t-mono-cta);
     color: var(--ink-body);
     border: 1px solid var(--rule);
-    border-radius: var(--r-sm);
+    border-radius: var(--r-md);
     transition:
       border-color var(--d-color),
       transform var(--d-press) var(--ease-out);
   }
-  .close:hover {
+  .secondary:hover {
     border-color: var(--ink-decorative);
   }
-  .close:active {
+  .secondary:active {
     transform: scale(0.97);
   }
 
@@ -397,8 +503,12 @@ const sourceHref = `${site.repoHref.replace(/\/$/, '')}/blob/main/src/pages/api/
     .dialog[data-closing] {
       animation-name: dialog-fade-out;
     }
-    .done > * {
+    .done > *,
+    .nudge {
       animation-name: dialog-fade-in;
+    }
+    .field[data-nudge] textarea {
+      animation: none;
     }
   }
 
