@@ -4,11 +4,11 @@
 title: Waymo Label Requesting Redesign
 org: Waymo
 year: "2024"
-order: 2
+order: 1
 
-cardTitle: A request form that explains itself
+cardTitle: Streamlining label requests
 summary: >-
-  Turning a sprawling, tribal-knowledge request process into a guided form that explains itself. Made trade-offs to fit the needs of the majority of users. Every field says what it's for and what happens downstream, so the most common requests wouldn't need a labeling engineer on call.
+  Turned a sprawling, tribal-knowledge request process into a guided form that explains itself. Made trade-offs to fit the needs of the majority of users. Every field says what it's for and what happens downstream, so the most common requests wouldn't need a labeling engineer on call.
 thumb: assets/home/waymo-thumb.png
 thumbAlt: Labeling request prototype
 

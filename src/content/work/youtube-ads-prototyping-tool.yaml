@@ -6,11 +6,11 @@
 title: YouTube Ads Prototyping Tool
 org: Google
 year: "2025"
-order: 1
+order: 2
 
-cardTitle: A prototyping tool anyone can drive
+cardTitle: Prototyping tools for YouTube Ads
 summary: >-
-  Making a code-heavy prototyping tool self-serve, so testing a new ad format wouldn't cost so many engineering hours. Rebuilt the editor around the things UXers would actually do themselves, and started a more dynamic conversation between designers and engineers.
+  Made a code-heavy prototyping tool self-serve, so testing a new ad format wouldn't cost so many engineering hours. Rebuilt the editor around the things UXers would actually do themselves, and started a more dynamic conversation between designers and engineers.
 thumb: assets/home/youtube-ads-thumb.png
 thumbAlt: Prototyping tool editor
 
