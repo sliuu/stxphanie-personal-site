@@ -1,13 +1,13 @@
 ---
-// Draggable anonymous-feedback tab. Moves freely within the viewport; pulled
-// past an edge it resists, and springs back inside on release. Place inside a
-// positioned container. Desktop only; not draggable under
-// prefers-reduced-motion.
+// Draggable anonymous-feedback tab. Drags by the grip only; the rest of the
+// card is the button. Moves freely within the viewport; pulled past an edge it
+// resists, and springs back inside on release. Place inside a positioned
+// container. Desktop only; not draggable under prefers-reduced-motion.
 ---
 
 <div class="tab only-desktop" data-drag>
   <div class="card">
-    <span class="grip" aria-hidden="true">⠿</span>
+    <span class="grip" aria-hidden="true" data-grip>⠿</span>
     <button type="button" class="open" data-feedback-open>leave me anonymous feedback!</button>
   </div>
 </div>
@@ -46,7 +46,7 @@
 
     tab.addEventListener('pointerdown', (e) => {
       if (reduce.matches || e.button !== 0) return;
-      if ((e.target as Element).closest('[data-feedback-open]')) return;
+      if (!(e.target as Element).closest('[data-grip]')) return;
       dragging = true;
       startX = e.clientX;
       startY = e.clientY;
@@ -108,8 +108,6 @@
     z-index: 20;
     border-radius: var(--r-md);
     transform: rotate(-7deg);
-    cursor: grab;
-    touch-action: none;
     user-select: none;
     animation: tabin var(--d-enter) var(--ease-out) 0.3s both;
   }
@@ -132,22 +130,28 @@
     }
   }
 
+  /* No padding or gap of its own: the grip and the button carry it between
+     them, so every point on the card belongs to one or the other. */
   .card {
     display: flex;
-    align-items: center;
-    gap: var(--s-3);
-    padding: var(--s-3) var(--s-5) var(--s-3) var(--s-4);
+    align-items: stretch;
     background: var(--glass);
     backdrop-filter: blur(6px);
     border: 1px solid var(--border-strong);
     border-radius: var(--r-md);
   }
   .grip {
+    display: flex;
+    align-items: center;
+    padding: var(--s-3) var(--s-3) var(--s-3) var(--s-4);
     font: var(--t-mono-index);
     letter-spacing: var(--track-date);
     color: var(--ink-decorative);
+    cursor: grab;
+    touch-action: none;
   }
   .open {
+    padding: var(--s-3) var(--s-5) var(--s-3) 0;
     font: var(--t-mono-nav);
     letter-spacing: var(--track-date);
     color: var(--ink);
@@ -165,6 +169,8 @@
   @media (prefers-reduced-motion: reduce) {
     .tab {
       animation: none;
+    }
+    .grip {
       cursor: auto;
     }
   }
