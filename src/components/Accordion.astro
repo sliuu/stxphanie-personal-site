@@ -1,8 +1,9 @@
 ---
-// One row open at a time within a group; the first row starts open. Drives
-// both the case-study list and the single-row project section, so the two
-// read as one pattern. Separate <Accordion> instances are separate groups —
-// opening the project row does not close a case study.
+// One row open at a time within a group. The first row starts open on desktop
+// and every row starts closed under 900px — see the inline script below.
+// Drives both the case-study list and the single-row project section, so the
+// two read as one pattern. Separate <Accordion> instances are separate
+// groups — opening the project row does not close a case study.
 import Eyebrow from './Eyebrow.astro';
 import Figure from './Figure.astro';
 import TextLink from './TextLink.astro';
@@ -96,6 +97,29 @@ const { items, idPrefix } = Astro.props;
   }
 </div>
 
+<script is:inline>
+  // Narrow screens start fully collapsed. An open panel is a summary plus a
+  // thumbnail, which on a phone pushes the next row past the fold and makes a
+  // list of studies read as a single item — the row that demonstrates the
+  // interaction costs the ones below it.
+  //
+  // Inline and directly after the markup so it runs while parsing, before the
+  // first paint: the row is never painted open, so nothing animates shut. The
+  // open row is baked in at build time, which is why this can't be done in CSS.
+  // Idempotent and document-wide, so the copy each <Accordion> emits is safe.
+  {
+    const NARROW = 899; // keep in step with the max-width query in the styles below
+    if (matchMedia(`(max-width: ${NARROW}px)`).matches) {
+      for (const item of document.querySelectorAll('[data-item].is-open')) {
+        item.classList.remove('is-open');
+        item.querySelector('button')?.setAttribute('aria-expanded', 'false');
+        const panel = item.querySelector('[id]');
+        if (panel) panel.inert = true;
+      }
+    }
+  }
+</script>
+
 <script>
   for (const root of document.querySelectorAll<HTMLElement>('[data-accordion]')) {
     const items = [...root.querySelectorAll<HTMLElement>('[data-item]')];
@@ -116,6 +140,13 @@ const { items, idPrefix } = Astro.props;
 
 <style>
   .accordion {
+    /* Where the trigger's title column starts, from the item's left edge: the
+       trigger's own shift (its negative margin plus its padding), then the
+       index column and the gap after it. The panel hangs off the same line, so
+       the summary starts under the title rather than under the number. The
+       title's position is emergent from .trigger's grid with nothing to query,
+       so this is kept in step with that margin, padding and column-gap by hand. */
+    --title-inset: calc(var(--s-5) - var(--s-3) + var(--pad-inset) + var(--s-9));
     display: flex;
     flex-direction: column;
     border-top: 1px solid var(--rule);
@@ -199,7 +230,7 @@ const { items, idPrefix } = Astro.props;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--s-10);
     align-items: start;
-    padding: 0 var(--s-1) var(--s-10) calc(var(--pad-inset) + var(--s-9));
+    padding: 0 var(--s-1) var(--s-10) var(--title-inset);
   }
   /* No thumbnail: the copy runs to the reading measure instead of half-width. */
   .body.solo {
@@ -230,6 +261,10 @@ const { items, idPrefix } = Astro.props;
   }
 
   @media (max-width: 899px) {
+    .accordion {
+      /* The trigger's -s-3 margin and s-3 padding cancel at this width. */
+      --title-inset: calc(var(--pad-inset) + var(--s-3));
+    }
     .trigger {
       grid-template-columns: var(--pad-inset) minmax(0, 1fr) auto;
       column-gap: var(--s-3);
@@ -248,7 +283,7 @@ const { items, idPrefix } = Astro.props;
     .body.solo {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--s-6);
-      padding: 0 0 var(--s-9);
+      padding: 0 0 var(--s-9) var(--title-inset);
     }
   }
 </style>
