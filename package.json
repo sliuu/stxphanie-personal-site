@@ -8,6 +8,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "shoot:demo": "node scripts/shoot-demo.mjs",
+    "shoot:og": "node scripts/shoot-og.mjs",
     "astro": "astro"
   },
   "dependencies": {
