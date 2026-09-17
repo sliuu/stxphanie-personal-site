@@ -1,0 +1,102 @@
+---
+// Not found. Prerendered to 404.html, which Vercel serves for any path that
+// doesn't match. Reads like the home page's hero: display lines that rise in,
+// an accent span with the role word's dashed underline, then the ways back.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactFooter from '../components/ContactFooter.astro';
+import Eyebrow from '../components/Eyebrow.astro';
+import SiteNav from '../components/SiteNav.astro';
+import TextLink from '../components/TextLink.astro';
+---
+
+<BaseLayout title="Page not found">
+  <div class="page">
+    <SiteNav />
+    <main class="lost">
+      <div class="rise" style="--delay: 0.2s">
+        <Eyebrow as="p">404 · Not found</Eyebrow>
+      </div>
+
+      <h1 class="headline">
+        <span class="line rise" style="--delay: 0.35s">Nothing lives at</span>
+        <span class="line rise" style="--delay: 0.5s"><span class="path" data-path>this address</span>.</span>
+      </h1>
+      <script is:inline>
+        // The page is built once, so the missing path is only known here.
+        // textContent, never markup: the path is whatever someone typed.
+        {
+          const el = document.querySelector('[data-path]');
+          const path = location.pathname;
+          if (el && !/^\/404(\.html)?$/.test(path)) {
+            try {
+              el.textContent = decodeURI(path);
+            } catch {
+              el.textContent = path; // malformed escapes: show it as typed
+            }
+          }
+        }
+      </script>
+
+      <p class="body rise" style="--delay: 0.65s">
+        It may have moved, or the link has a typo. Everything I’ve shared is a click away from the home page.
+      </p>
+
+      <div class="ways rise" style="--delay: 0.8s">
+        <TextLink href="/" mono>back to the home page</TextLink>
+        <TextLink href="/#work" mono>see the case studies</TextLink>
+        <!-- Opens the feedback dialog (BaseLayout), so a broken link can be reported anonymously. -->
+        <button type="button" class="text-link report" data-feedback-open>tell me about the broken link</button>
+      </div>
+    </main>
+    <ContactFooter />
+  </div>
+</BaseLayout>
+
+<style>
+  /* Footer pinned to the bottom on tall screens; the message centres above it. */
+  .page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+  .lost {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--s-8);
+    padding: var(--pad-hero-top) var(--pad-page-x) var(--pad-hero-bottom);
+  }
+  .headline {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    font: var(--t-display);
+    letter-spacing: var(--track-display);
+    color: var(--ink);
+  }
+  /* The hero's role-word treatment, minus the click. Paths can be one long
+     unbroken string, so it may wrap anywhere rather than overflow. */
+  .path {
+    color: var(--accent);
+    border-bottom: 1px dashed var(--accent-dash);
+    overflow-wrap: anywhere;
+  }
+  .body {
+    max-width: var(--measure-note);
+    font: var(--t-field);
+    color: var(--ink-muted);
+  }
+  .ways {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-4) var(--s-8);
+  }
+  /* Matches TextLink's mono treatment; a button, since it opens the dialog. */
+  .report {
+    padding-bottom: var(--s-1);
+    font: var(--t-mono-button);
+  }
+</style>
