@@ -70,9 +70,9 @@ if (!CHROME) {
 
 // --- The card --------------------------------------------------------------
 
-/** Inline a woff2 from node_modules so the page needs no network. */
+/** Inline a woff2 from the repo so the page needs no network. */
 const face = (family, file, weight) => {
-  const bytes = readFileSync(join(root, 'node_modules', file));
+  const bytes = readFileSync(join(root, file));
   return `@font-face {
       font-family: '${family}';
       font-weight: ${weight};
@@ -90,8 +90,9 @@ const html = `<!doctype html>
   <head>
     <meta charset="utf-8" />
     <style>
-      ${face('Gabarito', '@fontsource/gabarito/files/gabarito-latin-400-normal.woff2', 400)}
-      ${face('Geist Mono Variable', '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2', '100 900')}
+      ${face('Gabarito', 'node_modules/@fontsource/gabarito/files/gabarito-latin-400-normal.woff2', 400)}
+      ${face('KK Topo', 'public/fonts/KK-Topo-Regular.woff2', 400)}
+      ${face('Geist Mono Variable', 'node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2', '100 900')}
       ${tokens}
 
       html, body { margin: 0; }
@@ -109,14 +110,14 @@ const html = `<!doctype html>
         position: relative;
         -webkit-font-smoothing: antialiased;
       }
-      /* The hero headline's treatment: the same display face, weight and
-         tracking the home page sets its name in. Not --t-display itself —
+      /* The hero headline's treatment: --font-display, the same face,
+         weight and tracking the home page sets its name in. Not --t-display —
          that size is fluid (clamp on vw) and a 1200px-wide card would land
          on 58px, small for a tile. The size is set here; everything else
          about the face comes from the tokens. */
       .name {
         margin: 0;
-        font: 400 ${NAME_SIZE}px/1.05 var(--font-sans);
+        font: 400 ${NAME_SIZE}px/1.05 var(--font-display);
         letter-spacing: var(--track-display);
         /* Lowercased here, not in the data: site.name is also the tab title
            and og:title, where it stays capitalised. */

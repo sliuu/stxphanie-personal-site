@@ -1,0 +1,16 @@
+/* Faces that aren't on a CDN or in @fontsource.
+   KK Topo (Kaam Kaaj) is the display face — see --font-display in tokens.css
+   for where it's used. Regular is the only weight, which is why nothing set
+   in it asks for 500: the browser would synthesise that and smear it.
+   Served from public/ rather than bundled so BaseLayout can preload it by a
+   URL that doesn't change on every build. */
+
+@font-face {
+  font-family: 'KK Topo';
+  font-weight: 400;
+  font-style: normal;
+  /* swap, not block: the headline is the first thing on the page, and a
+     flash of Gabarito beats an empty hero on a slow connection. */
+  font-display: swap;
+  src: url('/fonts/KK-Topo-Regular.woff2') format('woff2');
+}

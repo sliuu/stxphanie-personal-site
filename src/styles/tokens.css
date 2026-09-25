@@ -42,6 +42,17 @@
 
   /* ---- Typography ---- */
   --font-sans: 'Gabarito', system-ui, -apple-system, sans-serif;
+  /* The two genuinely large moments only: --t-display (home and 404
+     headlines) and --t-hero (case study titles). Nothing smaller.
+     Topo and Gabarito are both geometric sans, so the switch only reads as
+     hierarchy when the size gap is wide enough to carry it. Section headings
+     at 34px and accordion rows at 24px are inside that gap — there the second
+     face stops reading as a voice and starts reading as unevenness.
+     KK Topo ships in one weight, so nothing set in it may ask for 500 —
+     the browser fakes it and the result smears.
+     Falls back to the text face, which is metrically close enough that a
+     failed font load rewraps rather than reflows the page. */
+  --font-display: 'KK Topo', 'Gabarito', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
 
   --weight-light:     300;
@@ -52,7 +63,7 @@
   /* Type scale. Names describe role, not size — the role is what
      survives a redesign. Line-height and tracking are part of the
      token; do not set them independently. */
-  --t-hero:      400 52px/1.10 var(--font-sans);   /* letter-spacing -0.030em */
+  --t-hero:      400 52px/1.10 var(--font-display);   /* letter-spacing -0.030em */
   --t-section:   400 34px/1.15 var(--font-sans);   /* -0.025em */
   --t-statement: 400 26px/1.40 var(--font-sans);   /* -0.016em — thesis band */
   --t-accordion: 400 24px/1.30 var(--font-sans);   /* -0.014em */
@@ -141,7 +152,7 @@
 
   /* Type */
   --display-size:  clamp(40px, 4.85vw, 66px);           /* 66px at the 1360 canvas */
-  --t-display:     400 var(--display-size)/1.10 var(--font-sans); /* home headline */
+  --t-display:     400 var(--display-size)/1.10 var(--font-display); /* home headline */
   --t-org:         500 16px/1.30 var(--font-sans);      /* career org */
   --t-diagram:     400 18px/1.35 var(--font-sans);      /* diagram role, -0.015em */
   --t-list-large:  400 18px/1.60 var(--font-sans);      /* large dash list */
@@ -232,7 +243,7 @@
     --thumb-height:    200px;
     --r-media:         var(--r-sm);
 
-    --t-hero:         400 34px/1.12 var(--font-sans);
+    --t-hero:         400 34px/1.12 var(--font-display);
     --t-section:      400 26px/1.15 var(--font-sans);
     --t-lede:         400 19px/1.40 var(--font-sans);
     --t-subhead:      400 17px/1.55 var(--font-sans);
