@@ -29,10 +29,12 @@ const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
     </span>
   </h1>
   <!-- Waits for the headline rather than riding along with it. The last line
-       starts at 0.50s and --d-enter-alt runs 1.20s, so a 0.70s start landed
-       inside it and read as one movement; 1.00s reads as a second one. Change
-       this and index.astro's --delay and BaseLayout's LOAD_DELAY together. -->
-  <div class="aside rise" style="--delay: 1s">
+       starts at 0.50s and --d-enter-alt runs 1.20s; --ease-out front-loads the
+       travel, so by 0.85s that line has all but landed. Earlier (0.70s) the two
+       read as one movement, later (1.00s) the page sat empty long enough to
+       feel slow. Change this, index.astro's --delay and BaseLayout's
+       LOAD_DELAY together. -->
+  <div class="aside rise" style="--delay: 0.85s">
     <slot />
   </div>
 </section>
