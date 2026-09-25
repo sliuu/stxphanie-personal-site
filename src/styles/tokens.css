@@ -135,7 +135,10 @@
   --d-shift:     0.35s;  /* translate on hover */
   --d-accordion: 0.60s;  /* panel height */
   --d-enter:     0.80s;  /* scroll / load reveal */
-  --d-enter-alt: 0.90s;
+  --d-enter-alt: 1.20s;  /* the .rise load-in — the hero lines and the page
+                            around them. Long on purpose: --ease-out puts most
+                            of the travel early, so the extra time lands in the
+                            tail, where it reads as settling rather than lag. */
 
   /* ================================================================
      Build additions. Values read off the drawn artboards (4l, cs1b,
@@ -218,7 +221,7 @@
   --d-confirm:   0.30s;  /* dialog sent state, per line */
   --stagger:     0.05s;  /* between lines of the sent state */
   --d-shake:     0.40s;  /* feedback field head-shake on an empty send */
-  --d-reveal:    0.75s;  /* scroll reveal: shorter than the load-in, so
+  --d-reveal:    1.00s;  /* scroll reveal: kept shorter than the load-in, so
                             fast scrolling doesn't wait on content */
 }
 
