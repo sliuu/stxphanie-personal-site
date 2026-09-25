@@ -28,7 +28,11 @@ const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
       </button>{tail}
     </span>
   </h1>
-  <div class="aside rise" style="--delay: 0.7s">
+  <!-- Waits for the headline rather than riding along with it. The last line
+       starts at 0.50s and --d-enter-alt runs 1.20s, so a 0.70s start landed
+       inside it and read as one movement; 1.00s reads as a second one. Change
+       this and index.astro's --delay and BaseLayout's LOAD_DELAY together. -->
+  <div class="aside rise" style="--delay: 1s">
     <slot />
   </div>
 </section>

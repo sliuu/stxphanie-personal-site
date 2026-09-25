@@ -51,10 +51,11 @@ const projects = [
       </Hero>
 
       <section id="work" aria-labelledby="work-title">
-        <div class="head work-head rise" style="--delay: 0.7s">
+        <!-- In step with the hero's aside; see the note in Hero.astro. -->
+        <div class="head work-head rise" style="--delay: 1s">
           <Eyebrow as="h2" id="work-title">Case studies</Eyebrow>
         </div>
-        <div class="band rise" style="--delay: 0.7s">
+        <div class="band rise" style="--delay: 1s">
           <Accordion items={caseStudies} idPrefix="case-study" />
         </div>
       </section>

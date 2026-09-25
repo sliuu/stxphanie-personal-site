@@ -90,7 +90,7 @@ const ogImage = new URL(image, Astro.site);
   // Reveal each [data-reveal] block once its top is 10% up from the bottom of
   // the viewport. Blocks already on screen at load (tall screens) come in with
   // the case-study list's load-in rather than ahead of the hero.
-  const LOAD_DELAY = 0.7; // s — the case-study list's --delay in index.astro
+  const LOAD_DELAY = 1.0; // s — the case-study list's --delay in index.astro
   const STAGGER = 0.05; // s — between blocks revealed together at load
 
   if ('revealOn' in document.documentElement.dataset) {
