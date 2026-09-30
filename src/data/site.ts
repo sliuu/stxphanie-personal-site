@@ -27,7 +27,7 @@ export const hero = {
 };
 
 export const career = [
-  { period: '2025 —', org: 'Sabbatical', role: 'Rest, reflection & writing' },
+  { period: '2025 —', org: 'Sabbatical', role: 'Travel, reflection, learning, building' },
   { period: '2025', org: 'Google', role: 'UX Engineer' },
   { period: '2022 — 25', org: 'Waymo', role: 'SWE & UX Research (20%)' },
   { period: '2021 — 22', org: 'Nuro', role: 'SWE & Analytics Engineer' },
@@ -56,7 +56,7 @@ export const statements = {
   items: [
     {
       label: 'Currently',
-      text: 'On a sabbatical through late 2026 — resting, reading, learning, building. Looking for good work with good people.',
+      text: 'On a sabbatical through late 2026 — traveling, reflecting, learning, building. Looking for good work with good people.',
     },
     {
       label: 'Also loving',
