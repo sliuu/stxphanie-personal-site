@@ -8,9 +8,8 @@ export default defineConfig({
   adapter: vercel(),
   env: {
     schema: {
-      // Upstash Redis REST credentials for the anonymous feedback store.
-      FEEDBACK_REDIS_URL: envField.string({ context: 'server', access: 'secret', optional: true }),
-      FEEDBACK_REDIS_TOKEN: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Resend API key: the feedback endpoint emails each note through it.
+      RESEND_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
 });

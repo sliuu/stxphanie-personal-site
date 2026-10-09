@@ -1,7 +1,9 @@
-// Anonymous feedback. Stores only the note text: no IP, no timestamp, no
-// headers. The IP is used in memory for rate limiting and never written.
+// Anonymous feedback. Emails only the note text: no IP, no headers. The IP is
+// used in memory for rate limiting and never written. Sent the moment it
+// arrives, so the email's own timestamp is the one thing that isn't hidden.
 import type { APIRoute } from 'astro';
-import { FEEDBACK_REDIS_TOKEN, FEEDBACK_REDIS_URL } from 'astro:env/server';
+import { RESEND_API_KEY } from 'astro:env/server';
+import { site } from '../../data/site';
 
 export const prerender = false;
 
@@ -59,25 +61,31 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const text = typeof note === 'string' ? note.trim() : '';
   if (!text || text.length > MAX_LENGTH) return json(400, { error: 'invalid_note' });
 
-  if (!FEEDBACK_REDIS_URL || !FEEDBACK_REDIS_TOKEN) {
+  if (!RESEND_API_KEY) {
     if (import.meta.env.DEV) {
-      console.info('[feedback] storage not configured; note was:\n' + text);
+      console.info('[feedback] email not configured; note was:\n' + text);
       return json(200, { ok: true });
     }
     return json(503, { error: 'not_configured' });
   }
 
   try {
-    // Upstash REST: POST a command as a JSON array.
-    const res = await fetch(FEEDBACK_REDIS_URL, {
+    // Resend's shared test sender needs no domain setup, but it only delivers
+    // to the address that owns the Resend account — keep that site.email.
+    const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: { authorization: `Bearer ${FEEDBACK_REDIS_TOKEN}`, 'content-type': 'application/json' },
-      body: JSON.stringify(['RPUSH', 'feedback', text]),
+      headers: { authorization: `Bearer ${RESEND_API_KEY}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Site feedback <onboarding@resend.dev>',
+        to: site.email,
+        subject: 'Anonymous feedback',
+        text,
+      }),
     });
-    if (!res.ok) throw new Error(`Upstash responded ${res.status}`);
+    if (!res.ok) throw new Error(`Resend responded ${res.status}: ${await res.text()}`);
   } catch (err) {
-    console.error('[feedback] could not store note', err);
-    return json(502, { error: 'store_failed' });
+    console.error('[feedback] could not send note', err);
+    return json(502, { error: 'send_failed' });
   }
 
   return json(200, { ok: true });

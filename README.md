@@ -70,24 +70,24 @@ one on it — if the banner's copy changes, update `BANNER_TEXT` in `scripts/sho
 
 ## Feedback endpoint
 
-`POST /api/feedback` with `{ "note": "…" }`. Notes are appended to a Redis list named
-`feedback` on [Upstash](https://upstash.com) — only the text is stored. Each IP gets 5
-notes an hour, tracked in memory only.
+`POST /api/feedback` with `{ "note": "…" }`. Each note is emailed to `site.email` through
+[Resend](https://resend.com) the moment it arrives — only the text is sent. Each IP gets
+5 notes an hour, tracked in memory only.
 
-1. Create a free Upstash Redis database and copy its **REST URL** and **REST token**.
-2. Put them in `.env` locally (see `.env.example`) and in Vercel → Project → Settings →
-   Environment Variables as `FEEDBACK_REDIS_URL` and `FEEDBACK_REDIS_TOKEN`.
-3. Read notes from the Upstash console with `LRANGE feedback 0 -1`.
+1. Create a free Resend account **with the same address as `site.email`** (the shared
+   `onboarding@resend.dev` sender only delivers to the account owner) and create an API key.
+2. Put it in `.env` locally (see `.env.example`) and in Vercel → Project → Settings →
+   Environment Variables as `RESEND_API_KEY`, then redeploy.
 
-Without those variables, dev logs notes to the terminal and production returns 503.
+Without that variable, dev logs notes to the terminal and production returns 503.
 
 ## Deploying
 
-Push to GitHub, import the repo in Vercel (it detects Astro), add the two environment
-variables, deploy. Point `stxphanie.com` at it under Settings → Domains.
+Push to GitHub, import the repo in Vercel (it detects Astro), add the `RESEND_API_KEY`
+environment variable, deploy. Point `stxphanie.com` at it under Settings → Domains.
 
 ## To do
 
 - Replace the two outdated YouTube screenshots (`prototype-editor`, `prototype-preview`).
-- The feedback dialog promises weekly batched delivery; that's not built yet — for now,
-  read the list in Upstash.
+- Notes are emailed instantly, so arrival time can hint at who sent one. A weekly digest
+  would hide that.
