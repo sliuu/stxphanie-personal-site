@@ -70,21 +70,22 @@ one on it — if the banner's copy changes, update `BANNER_TEXT` in `scripts/sho
 
 ## Feedback endpoint
 
-`POST /api/feedback` with `{ "note": "…" }`. Each note is emailed to `site.email` through
+`POST /api/feedback` with `{ "note": "…" }`. Each note is emailed through
 [Resend](https://resend.com) the moment it arrives — only the text is sent. Each IP gets
 5 notes an hour, tracked in memory only.
 
-1. Create a free Resend account **with the same address as `site.email`** (the shared
-   `onboarding@resend.dev` sender only delivers to the account owner) and create an API key.
-2. Put it in `.env` locally (see `.env.example`) and in Vercel → Project → Settings →
-   Environment Variables as `RESEND_API_KEY`, then redeploy.
+1. Create a free Resend account and an API key.
+2. Put the key in `.env` locally (see `.env.example`) and in Vercel → Project → Settings →
+   Environment Variables as `RESEND_API_KEY`. Put the Resend account's address in
+   `FEEDBACK_EMAIL_TO` — the shared `onboarding@resend.dev` sender only delivers to the
+   account owner. It's an env var so a private address stays out of the repo. Redeploy.
 
-Without that variable, dev logs notes to the terminal and production returns 503.
+Without those variables, dev logs notes to the terminal and production returns 503.
 
 ## Deploying
 
-Push to GitHub, import the repo in Vercel (it detects Astro), add the `RESEND_API_KEY`
-environment variable, deploy. Point `stxphanie.com` at it under Settings → Domains.
+Push to GitHub, import the repo in Vercel (it detects Astro), add the `RESEND_API_KEY` and
+`FEEDBACK_EMAIL_TO` environment variables, deploy. Point `stxphanie.com` at it under Settings → Domains.
 
 ## To do
 

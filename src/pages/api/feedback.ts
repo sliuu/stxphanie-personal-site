@@ -2,8 +2,7 @@
 // used in memory for rate limiting and never written. Sent the moment it
 // arrives, so the email's own timestamp is the one thing that isn't hidden.
 import type { APIRoute } from 'astro';
-import { RESEND_API_KEY } from 'astro:env/server';
-import { site } from '../../data/site';
+import { FEEDBACK_EMAIL_TO, RESEND_API_KEY } from 'astro:env/server';
 
 export const prerender = false;
 
@@ -61,7 +60,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const text = typeof note === 'string' ? note.trim() : '';
   if (!text || text.length > MAX_LENGTH) return json(400, { error: 'invalid_note' });
 
-  if (!RESEND_API_KEY) {
+  if (!RESEND_API_KEY || !FEEDBACK_EMAIL_TO) {
     if (import.meta.env.DEV) {
       console.info('[feedback] email not configured; note was:\n' + text);
       return json(200, { ok: true });
@@ -71,13 +70,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   try {
     // Resend's shared test sender needs no domain setup, but it only delivers
-    // to the address that owns the Resend account — keep that site.email.
+    // to the address that owns the Resend account. That address is private,
+    // so it lives in an env var rather than in this public repo.
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { authorization: `Bearer ${RESEND_API_KEY}`, 'content-type': 'application/json' },
       body: JSON.stringify({
         from: 'Site feedback <onboarding@resend.dev>',
-        to: site.email,
+        to: FEEDBACK_EMAIL_TO,
         subject: 'Anonymous feedback',
         text,
       }),
