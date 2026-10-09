@@ -2,7 +2,7 @@
 
 export const site = {
   name: 'Stephanie Liu', // nav wordmark (CSS sets the caps), tab title, footer
-  description: 'Stephanie — a product designer who engineers. Case studies from Google and Waymo, and things I’ve made.',
+  description: 'Stephanie — a product engineer who builds end to end, close to the people using it. Case studies from Google and Waymo, and things I’ve made.',
   email: 'stxphanieliu@gmail.com',
   // Served from public/ rather than bundled: the URL is stable across rebuilds,
   // so a link already out in the world keeps working when the PDF is replaced.
@@ -18,7 +18,7 @@ export const hero = {
   lead: 'I’m a',
   // Click the accent word to cycle. It sits mid-sentence now, so Hero animates
   // its width on each swap — keep these close in length and they stay tidy.
-  roles: ['design engineer', 'UX engineer', 'product designer'],
+  roles: ['product engineer', 'UX engineer', 'builder'],
   // The gap in "San Francisco" is an escaped U+00A0, not a plain space.
   // The role word changes width on every click, which moves the wrap point,
   // and a plain space lets the line break as "San / Francisco." on some of
@@ -56,7 +56,7 @@ export const statements = {
   items: [
     {
       label: 'Currently',
-      text: 'On a sabbatical through late 2026 — traveling, reflecting, learning, building. Looking for good work with good people.',
+      text: 'Looking for my next product engineering role — good work with good people, close to users.',
     },
     {
       label: 'Also loving',

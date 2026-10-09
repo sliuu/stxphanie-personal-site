@@ -191,6 +191,16 @@ sections:
         text: >-
           The intended effect: ML engineers who can make and track their own requests, and labeling engineers who get their time back.
 
+  - title: How I built it
+    lede: A framework-free prototype, factored for whoever rebuilds it.
+    blocks:
+      - type: prose
+        text:
+          - >-
+            The prototype is plain HTML, CSS, and JavaScript, with no framework and no build step, so it opens straight from a file. Each screen keeps one state object and a render function that re-derives the DOM from it, with a small keyed reconciler doing the job a framework normally would.
+          - >-
+            The trade-off was writing those framework pieces by hand. In return, the files are split along the component boundaries an engineer would draw when rebuilding it in a real codebase: one file per wizard step, one for state, one for design tokens.
+
   - title: Takeaways
     lede: Two years on I'd keep the wizard, and move the line it draws.
     blocks:

@@ -224,6 +224,16 @@ sections:
           - >-
             **The case for the audience.** The research documented why designers and researchers weren't converting, giving the team a target for the next version rather than a hunch.
 
+  - title: How I built it
+    lede: Lit in production, React for the redesign.
+    blocks:
+      - type: prose
+        text:
+          - >-
+            The production features shipped in the live tool's own stack, Lit and TypeScript. The redesign prototype is React, Vite, and TypeScript, with all data mocked locally.
+          - >-
+            The prototype draws the editor once. The prototype editor and the component editor share the same chrome, and each screen redefines the same CSS variable names under its own accent, so the two editors can't drift apart.
+
   - title: Takeaways
     lede: The editor was never the hard part. The library underneath it was.
     blocks:
