@@ -14,7 +14,6 @@ interface Props {
   height?: string; // fixed media height, e.g. var(--thumb-height)
   position?: string; // object-position when height crops
   framed?: boolean;
-  radius?: 'sm' | 'lg';
   sizes?: string;
   loading?: 'lazy' | 'eager';
 }
@@ -28,7 +27,6 @@ const {
   height,
   position,
   framed = true,
-  radius = 'lg',
   sizes,
   loading = 'lazy',
 } = Astro.props;
@@ -55,7 +53,7 @@ const vars = Object.entries({ '--ratio': ratio?.replace('/', ' / '), '--h': heig
 
 {
   render && (
-    <figure class:list={['figure', width, radius, { framed }]} style={vars || undefined}>
+    <figure class:list={['figure', width, { framed }]} style={vars || undefined}>
       {asset.status === 'image' && (
         <Image
           class="media"
@@ -118,13 +116,8 @@ const vars = Object.entries({ '--ratio': ratio?.replace('/', ' / '), '--h': heig
     height: var(--h, auto);
     object-fit: cover;
     object-position: var(--pos, center);
-    transition: border-color var(--d-border);
-  }
-  .lg :global(.media) {
     border-radius: var(--r-media);
-  }
-  .sm :global(.media) {
-    border-radius: var(--r-sm);
+    transition: border-color var(--d-border);
   }
   .framed :global(.media) {
     border: 1px solid var(--border);

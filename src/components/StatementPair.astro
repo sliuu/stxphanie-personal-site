@@ -21,14 +21,18 @@ const { statements, image } = Astro.props;
       ))
     }
   </div>
-  <Figure {...image} width="fill" framed={false} sizes="(min-width: 900px) 40vw, 100vw" />
+  <Figure {...image} width="fill" framed={false} sizes="(min-width: 900px) 45vw, 100vw" />
 </div>
 
 <style>
   .pair {
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
+    /* The portrait column is exactly an accordion thumbnail's: half of what is
+       left of the row after the title inset, the panel gap and the panel's
+       s-1 right padding (taken here as padding, so 100% already excludes it). */
+    grid-template-columns: minmax(0, 1fr) calc((100% - var(--title-inset) - var(--s-10)) / 2);
     gap: var(--s-13);
+    padding-right: var(--s-1);
     align-items: end;
     padding-top: var(--s-10);
     border-top: 1px solid var(--rule);
@@ -53,6 +57,7 @@ const { statements, image } = Astro.props;
     .pair {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--s-10);
+      padding-right: 0;
     }
   }
 </style>

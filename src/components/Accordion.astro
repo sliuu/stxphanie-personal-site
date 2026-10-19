@@ -83,7 +83,6 @@ const { items, idPrefix } = Astro.props;
                     width="fill"
                     height="var(--thumb-height)"
                     position="top left"
-                    radius="sm"
                     sizes="(min-width: 900px) 45vw, 100vw"
                     loading={open ? 'eager' : 'lazy'}
                   />
@@ -140,13 +139,13 @@ const { items, idPrefix } = Astro.props;
 
 <style>
   .accordion {
-    /* Where the trigger's title column starts, from the item's left edge: the
-       trigger's own shift (its negative margin plus its padding), then the
-       index column and the gap after it. The panel hangs off the same line, so
-       the summary starts under the title rather than under the number. The
-       title's position is emergent from .trigger's grid with nothing to query,
-       so this is kept in step with that margin, padding and column-gap by hand. */
-    --title-inset: calc(var(--s-5) - var(--s-3) + var(--pad-inset) + var(--s-9));
+    /* --title-inset (tokens.css) is where the trigger's title column starts,
+       from the item's left edge: the trigger's own shift (its negative margin
+       plus its padding), then the index column and the gap after it. The panel
+       hangs off the same line, so the summary starts under the title rather
+       than under the number. The title's position is emergent from .trigger's
+       grid with nothing to query, so the token is kept in step with that
+       margin, padding and column-gap by hand. */
     display: flex;
     flex-direction: column;
     border-top: 1px solid var(--rule);
@@ -261,10 +260,8 @@ const { items, idPrefix } = Astro.props;
   }
 
   @media (max-width: 899px) {
-    .accordion {
-      /* The trigger's -s-3 margin and s-3 padding cancel at this width. */
-      --title-inset: calc(var(--pad-inset) + var(--s-3));
-    }
+    /* --title-inset drops to pad-inset + s-3 here: the trigger's -s-3 margin
+       and s-3 padding cancel at this width. */
     .trigger {
       grid-template-columns: var(--pad-inset) minmax(0, 1fr) auto;
       column-gap: var(--s-3);

@@ -116,14 +116,16 @@
   --rail-gutter:  32px;
   --sidebar-total:327px;  /* rail + padding + 1px divider */
   --thumb-height: 246px;  /* accordion thumbnails */
+  /* Where an accordion row's title starts, from the row's left edge. Derived
+     from the trigger's margin, padding and grid in Accordion.astro (see the
+     note there); the home portrait reuses it to match the thumbnail width. */
+  --title-inset:  calc(var(--s-5) - var(--s-3) + var(--pad-inset) + var(--s-9));
   --canvas-width: 1360px; /* design width; the built site is fluid */
 
   /* ---- Radius ---- */
-  --r-xs: 4px;   /* badges */
-  --r-sm: 6px;   /* buttons, rows, mobile media */
-  --r-md: 7px;   /* nav buttons */
-  --r-lg: 8px;   /* media, desktop */
-  --r-xl: 10px;  /* cards */
+  --r-xs: 4px;   /* badges, focus ring, swatches */
+  --r-sm: 6px;   /* buttons, fields, rows, mobile media */
+  --r-lg: 8px;   /* media and cards, desktop */
 
   /* ---- Motion ---- */
   --ease-out:    cubic-bezier(0.16, 0.80, 0.24, 1.00);  /* entrances */
@@ -244,6 +246,7 @@
     --pad-contact-bottom: 64px;
     --scroll-offset:   88px;  /* clears the sticky progress strip */
     --thumb-height:    200px;
+    --title-inset:     calc(var(--pad-inset) + var(--s-3));
     --r-media:         var(--r-sm);
 
     --t-hero:         400 34px/1.12 var(--font-display);
