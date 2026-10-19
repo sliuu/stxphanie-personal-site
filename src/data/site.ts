@@ -48,7 +48,7 @@ export const project = {
   // accordion crops this to a top-left band, so the framing has to stay put.
   image: {
     src: 'assets/baby-steps/app-screenshot.png',
-    alt: 'The Baby Steps habit tracker, showing a month of stickers',
+    alt: 'The Baby Steps habit tracker, showing today’s stickers and the life-balance flower',
   },
 };
 

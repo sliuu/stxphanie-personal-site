@@ -8,7 +8,7 @@
 // scale, same crop, every run. When Baby Steps changes, run it again.
 //
 // WHY IT DRIVES CHROME RATHER THAN CROPPING PIXELS
-// The demo carries a "This is a demo." banner across the top. Cropping N pixels
+// The demo carries a "demo" banner across the top. Cropping N pixels
 // off the finished image would encode that banner's current height in this file
 // and rot the first time it wraps to two lines. Instead we remove the banner
 // element in the page and let the layout reflow, so the capture starts at the
@@ -39,7 +39,7 @@ const SCALE = 2;
 // The banner is identified by its own copy rather than by a class name: the
 // classes are Tailwind utilities that change whenever the banner is restyled,
 // the sentence is the thing that has to stay for the banner to mean anything.
-const BANNER_TEXT = 'This is a demo.';
+const BANNER_TEXT = 'demo';
 
 const CHROME = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',

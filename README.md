@@ -61,7 +61,7 @@ build logs a warning), so you can write first and drop files in later.
 ## The Baby Steps thumbnail
 
 `npm run shoot:demo` drives headless Chrome to <https://baby-steps.stxphanie.com/demo>,
-removes the "This is a demo." banner so the capture starts at the app's real top edge,
+removes the "demo" banner so the capture starts at the app's real top edge,
 and writes `src/assets/baby-steps/app-screenshot.png` at a pinned 1440x900 @2x. Run it
 whenever Baby Steps changes; the framing stays identical, so only the app moves.
 
