@@ -18,7 +18,7 @@ export const hero = {
   lead: 'I’m a',
   // Click the accent word to cycle. It sits mid-sentence now, so Hero animates
   // its width on each swap — keep these close in length and they stay tidy.
-  roles: ['product engineer', 'UX engineer', 'builder'],
+  roles: ['product engineer', 'UX engineer', 'design engineer', 'builder'],
   // The gap in "San Francisco" is an escaped U+00A0, not a plain space.
   // The role word changes width on every click, which moves the wrap point,
   // and a plain space lets the line break as "San / Francisco." on some of
@@ -27,7 +27,7 @@ export const hero = {
 };
 
 export const career = [
-  { period: '2025 —', org: 'Sabbatical', role: 'Travel, reflection, learning, building' },
+  { period: '2026 —', org: 'Sabbatical', role: 'Travel, reflection, learning, building' },
   { period: '2025', org: 'Google', role: 'UX Engineer' },
   { period: '2022 — 25', org: 'Waymo', role: 'SWE & UX Research (20%)' },
   { period: '2021 — 22', org: 'Nuro', role: 'SWE & Analytics Engineer' },
@@ -37,7 +37,7 @@ export const career = [
 export const project = {
   statement: 'Habits that get built by doing a thing over time, not every day.',
   emphasis: 'over time',
-  body: 'Built a habit tracker that only asks whether you showed up. No hours, no finished projects, no streak to break, no to-do lists. Simple and satisfying by design. Built with Next.js, React, TypeScript, Tailwind and Supabase. Hosted on Vercel, source on GitHub.',
+  body: 'Doing a hobby twice a month for a year beats not doing it at all. Baby Steps is a sticker book for the things you do sometimes, with a life-balance flower inspired by The Artist’s Way.',
   // The app, not the demo — the demo is linked from it.
   liveHref: 'https://baby-steps.stxphanie.com',
   liveLabel: 'Baby Steps',

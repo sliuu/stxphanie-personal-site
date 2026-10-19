@@ -110,7 +110,9 @@ const delay = (line: number) => `--delay: ${(START + STEP * line).toFixed(2)}s`;
     margin-bottom: var(--s-6);
     font: var(--t-display);
     letter-spacing: var(--track-display);
-    color: var(--ink);
+    /* KK Topo only ships in Regular. Soft ink reduces its visual weight
+       without relabelling the same outlines as a fake lighter face. */
+    color: var(--ink-soft);
   }
   .role {
     display: inline-block;
